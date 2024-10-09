@@ -29,10 +29,11 @@ label {
 
 input[type="text"] {
     width: calc(100% - 22px);
-    padding: 10px;
+    padding: 12px; /* Increased padding for better height */
     border: 1px solid #ccc;
     border-radius: 4px;
     margin-right: 5px;
+    font-size: 16px; /* Increased font size */
 }
 
 button {
@@ -42,6 +43,7 @@ button {
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    margin-top: 5px; /* Added margin for space */
 }
 
 button:hover {
