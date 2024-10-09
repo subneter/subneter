@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subneter</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
     <h1>Subneter App</h1>
@@ -21,7 +35,15 @@
     <ul id="reserved-list"></ul>
 
     <h3>Free Subnets</h3>
-    <ul id="free-list"></ul>
+    <table>
+        <thead>
+            <tr>
+                <th>Free Subnet</th>
+                <th>Usable IP Range</th>
+            </tr>
+        </thead>
+        <tbody id="free-list"></tbody>
+    </table>
 
     <script src="app.js"></script>
 </body>
