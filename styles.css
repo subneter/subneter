@@ -102,8 +102,3 @@ button:hover {
 hr {
     margin: 20px 0;
 }
-
-.table-row {
-    display: flex;
-    justify-content: space-between;
-}
