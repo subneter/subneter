@@ -47,6 +47,21 @@
         #reloadButton:hover {
             background-color: #ff7f50;
         }
+        .gap {
+            margin: 20px 0;
+        }
+        .remove-btn {
+            background-color: lightcoral;
+            color: red;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -59,12 +74,12 @@
         <button type="submit">Calculate</button>
     </form>
 
-    <div id="ipDetails"></div>
+    <div class="gap"></div> <!-- Gap added here -->
 
     <form id="reserveSubnetForm">
-        <label for="reserveSubnetInput">Enter Reserved Subnet (e.g., 10.228.128.0/20):</label>
+        <label for="reserveSubnetInput">Reserve a Subnet:</label>
         <input type="text" id="reserveSubnetInput" required>
-        <button type="submit">Add Reserved Subnet</button>
+        <button type="submit">Add</button>
     </form>
 
     <table>
@@ -74,6 +89,7 @@
                 <th>Usable Host Range</th>
                 <th>Available IPs</th>
                 <th>Status</th>
+                <th>Action</th> <!-- New Action column -->
             </tr>
         </thead>
         <tbody id="subnetTableBody">
@@ -117,6 +133,7 @@
                 <td class="${colorClass}">${usableRange}</td>
                 <td class="${colorClass}">${availableIps}</td>
                 <td class="${colorClass}">${status}</td>
+                <td><button class="remove-btn" onclick="removeSubnet('${subnet}')">X</button></td>
             `;
             subnetTableBody.appendChild(row);
         }
@@ -178,6 +195,11 @@
             reservedSubnets.push(reserveSubnetInput);
             renderTable();
         });
+
+        function removeSubnet(subnet) {
+            reservedSubnets = reservedSubnets.filter(reserved => reserved !== subnet);
+            renderTable(); // Refresh the table
+        }
 
         // Initial render
         renderTable();
