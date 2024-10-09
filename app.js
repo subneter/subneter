@@ -12,7 +12,7 @@ function addReservedSubnet() {
 function calculate() {
     const subnet = document.getElementById('subnet').value.trim();
     document.getElementById('used-list').innerHTML = `<li>Used subnet: ${subnet}</li>`;
-    
+
     // Display reserved subnets
     document.getElementById('reserved-list').innerHTML = reservedSubnets.map(reserved => `<li>${reserved}</li>`).join('');
 
@@ -32,19 +32,22 @@ function calculateFreeSubnets(baseSubnet, reserved) {
     // Convert reserved subnets to IPs and collect them
     for (let r of reserved) {
         const range = getCIDRRange(r);
-        usedIPs = usedIPs.concat(range);
+        usedIPs.push(range.startIP, range.endIP + 1); // Include start and end IPs for exclusion
     }
+
+    // Remove duplicates and sort the used IPs
+    usedIPs = [...new Set(usedIPs)].sort((a, b) => a - b);
 
     // Identify free subnets
     let lastIP = baseRange.startIP;
 
-    for (let ip of usedIPs.sort((a, b) => a - b)) {
+    for (let ip of usedIPs) {
         if (lastIP < ip) {
-            const freeSubnet = ipToCIDR(lastIP + 1, ip - 1);
-            const usableRange = `${decimalToIP(lastIP + 1)} to ${decimalToIP(ip - 1)}`;
+            const freeSubnet = ipToCIDR(lastIP, ip - 1);
+            const usableRange = `${decimalToIP(lastIP)} to ${decimalToIP(ip - 1)}`;
             freeSubnets.push({ subnet: freeSubnet, usableRange });
         }
-        lastIP = ip + 1; // Move to the next IP after the reserved subnet
+        lastIP = ip; // Move to the next IP after the reserved subnet
     }
 
     if (lastIP <= baseRange.endIP) {
