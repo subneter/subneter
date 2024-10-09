@@ -53,16 +53,28 @@
             color: blue;
         }
 
+        /* Adjust table styling */
         table {
-            width: 100%;
+            width: auto; /* Auto width, so it doesn't stretch to full width */
+            margin: 20px auto; /* Center the table */
             border-collapse: collapse;
-            margin-top: 20px;
+            background-color: #f9f9f9; /* Light grey background */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Light shadow */
         }
 
         table, th, td {
-            border: 1px solid lightgray;
+            border: 1px solid #ddd;
             padding: 10px;
             text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        /* Responsive table - expands if content is larger */
+        td {
+            white-space: nowrap;
         }
 
         hr {
@@ -84,6 +96,7 @@
         <button id="calculateButton">Calculate</button>
     </div>
 
+    <!-- Subnet Details section -->
     <div id="subnetDetailsTable" class="spaced">
         <h4>Subnet Details:</h4>
         <table>
@@ -124,7 +137,7 @@
         </table>
     </div>
 
-    <hr>
+    <hr> <!-- Horizontal line separating sections -->
 
     <div style="margin: 20px 0;">
         <h3>Reserve a subnet:</h3>
@@ -132,6 +145,7 @@
         <button id="addReservedButton">Add</button>
     </div>
 
+    <!-- Table for displaying subnets -->
     <table id="subnetTable">
         <thead>
             <tr>
