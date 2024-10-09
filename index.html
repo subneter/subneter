@@ -8,150 +8,84 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f8ff;
-            padding: 20px;
-        }
-
-        h3, h4 {
             color: #333;
         }
-
-        input[type="text"] {
-            padding: 8px;
-            width: 300px;
-            margin-right: 10px;
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
-        button {
-            padding: 8px 12px;
-            background-color: #1e90ff;
+        h1 {
+            text-align: center;
+        }
+        .btn {
+            padding: 10px 15px;
+            background-color: #007bff;
             color: white;
             border: none;
-            cursor: pointer;
             border-radius: 5px;
-        }
-
-        button#reloadButton {
-            background-color: lightorange;
-            border: 1px solid lightorange;
-        }
-
-        button.delete-button {
-            background-color: lightcoral;
-            color: red;
-            border: none;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
             cursor: pointer;
+            margin: 5px 0;
         }
-
-        .green-text {
-            color: green;
+        .btn-danger {
+            background-color: #dc3545;
         }
-
         .blue-text {
             color: blue;
         }
-
-        /* Adjust table styling */
-        table {
-            width: auto; /* Auto width, so it doesn't stretch to full width */
-            margin: 20px auto; /* Center the table */
-            border-collapse: collapse;
-            background-color: #f9f9f9; /* Light grey background */
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Light shadow */
+        .green-text {
+            color: green;
         }
-
-        table, th, td {
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
             border: 1px solid #ddd;
-            padding: 10px;
+            padding: 8px;
             text-align: left;
         }
-
         th {
             background-color: #f2f2f2;
         }
-
-        /* Responsive table - expands if content is larger */
-        td {
-            white-space: nowrap;
-            width: 50%; /* Make columns more balanced */
-        }
-
-        hr {
-            border-top: 2px solid lightgray;
-            margin: 20px 0;
-        }
-
-        .spaced {
-            margin-bottom: 30px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
+        #subnetDetails, #reserveSubnet {
+            margin-top: 20px;
+            border-top: 2px solid #007bff;
+            padding-top: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <button id="reloadButton">Reload (Count: 0)</button>
-
-        <div style="margin: 20px 0;">
-            <h3>Enter Subnet (e.g., 10.228.128.0/17):</h3>
-            <input type="text" id="subnetInput" placeholder="Enter Subnet" />
-            <button id="calculateButton">Calculate</button>
+        <h1>Subneter App</h1>
+        <input type="text" id="subnetInput" placeholder="Enter Subnet (e.g., 10.228.128.0/17):">
+        <button id="calculateButton" class="btn">Calculate</button>
+        <div id="subnetDetails">
+            <h2>Subnet Details:</h2>
+            <p>IP Address: <span id="ipAddress"></span></p>
+            <p>Network Address: <span id="networkAddress"></span></p>
+            <p>Usable Host IP Range: <span id="usableHostRange"></span></p>
+            <p>Broadcast Address: <span id="broadcastAddress"></span></p>
+            <p>Number of Usable Hosts: <span id="usableHostsCount"></span></p>
+            <p>Subnet Mask: <span id="subnetMask"></span></p>
+            <p>Wildcard Mask: <span id="wildcardMask"></span></p>
+            <p>CIDR Notation: <span id="cidrNotation"></span></p>
         </div>
 
-        <!-- Subnet Details section -->
-        <h4>Subnet Details:</h4>
+        <div id="reserveSubnet">
+            <h2>Reserve a Subnet:</h2>
+            <input type="text" id="reservedSubnetInput" placeholder="Enter Reserved Subnet:">
+            <button id="addReservedButton" class="btn">Add</button>
+        </div>
+
+        <button id="reloadButton" class="btn">Reload (Count: 0)</button>
+        <button id="clearCacheButton" class="btn btn-danger">Clear Cache</button>
+
         <table>
-            <tbody>
-                <tr>
-                    <td>IP Address:</td>
-                    <td><span id="ipAddress"></span></td>
-                </tr>
-                <tr>
-                    <td>Network Address:</td>
-                    <td><span id="networkAddress"></span></td>
-                </tr>
-                <tr>
-                    <td>Usable Host IP Range:</td>
-                    <td><span id="usableHostRange"></span></td>
-                </tr>
-                <tr>
-                    <td>Broadcast Address:</td>
-                    <td><span id="broadcastAddress"></span></td>
-                </tr>
-                <tr>
-                    <td>Number of Usable Hosts:</td>
-                    <td><span id="usableHostsCount"></span></td>
-                </tr>
-                <tr>
-                    <td>Subnet Mask:</td>
-                    <td><span id="subnetMask"></span></td>
-                </tr>
-                <tr>
-                    <td>Wildcard Mask:</td>
-                    <td><span id="wildcardMask"></span></td>
-                </tr>
-                <tr>
-                    <td>CIDR Notation:</td>
-                    <td><span id="cidrNotation"></span></td>
-                </tr>
-            </tbody>
-        </table>
-
-        <hr> <!-- Horizontal line separating sections -->
-
-        <div style="margin: 20px 0;">
-            <h3>Reserve a subnet:</h3>
-            <input type="text" id="reservedSubnetInput" placeholder="Enter Reserved Subnet" />
-            <button id="addReservedButton">Add</button>
-        </div>
-
-        <!-- Table for displaying subnets -->
-        <table id="subnetTable">
             <thead>
                 <tr>
                     <th>Subnet</th>
@@ -162,7 +96,7 @@
                 </tr>
             </thead>
             <tbody id="subnetTableBody">
-                <!-- Table rows will be dynamically added here -->
+                <!-- Reserved subnets will be added here -->
             </tbody>
         </table>
     </div>
