@@ -30,9 +30,10 @@ function calculateFreeSubnets(baseSubnet, reserved) {
     let usedIPs = [];
 
     // Convert reserved subnets to IPs and collect them
+    usedIPs.push(baseRange.startIP, baseRange.endIP + 1); // Include used subnet IPs
     for (let r of reserved) {
         const range = getCIDRRange(r);
-        usedIPs.push(range.startIP, range.endIP + 1); // Include start and end IPs for exclusion
+        usedIPs.push(range.startIP, range.endIP + 1); // Include reserved subnet IPs
     }
 
     // Remove duplicates and sort the used IPs
