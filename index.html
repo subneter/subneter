@@ -75,6 +75,7 @@
         /* Responsive table - expands if content is larger */
         td {
             white-space: nowrap;
+            width: 50%; /* Make columns more balanced */
         }
 
         hr {
@@ -85,81 +86,88 @@
         .spaced {
             margin-bottom: 30px;
         }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
     </style>
 </head>
 <body>
-    <button id="reloadButton">Reload (Count: 0)</button>
+    <div class="container">
+        <button id="reloadButton">Reload (Count: 0)</button>
 
-    <div style="margin: 20px 0;">
-        <h3>Enter Subnet (e.g., 10.228.128.0/17):</h3>
-        <input type="text" id="subnetInput" placeholder="Enter Subnet" />
-        <button id="calculateButton">Calculate</button>
-    </div>
+        <div style="margin: 20px 0;">
+            <h3>Enter Subnet (e.g., 10.228.128.0/17):</h3>
+            <input type="text" id="subnetInput" placeholder="Enter Subnet" />
+            <button id="calculateButton">Calculate</button>
+        </div>
 
-    <!-- Subnet Details section -->
-    <div id="subnetDetailsTable" class="spaced">
-        <h4>Subnet Details:</h4>
-        <table>
-            <tbody>
+        <!-- Subnet Details section -->
+        <div id="subnetDetailsTable" class="spaced">
+            <h4>Subnet Details:</h4>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>IP Address:</td>
+                        <td><span id="ipAddress"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Network Address:</td>
+                        <td><span id="networkAddress"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Usable Host IP Range:</td>
+                        <td><span id="usableHostRange"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Broadcast Address:</td>
+                        <td><span id="broadcastAddress"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Number of Usable Hosts:</td>
+                        <td><span id="usableHostsCount"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Subnet Mask:</td>
+                        <td><span id="subnetMask"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Wildcard Mask:</td>
+                        <td><span id="wildcardMask"></span></td>
+                    </tr>
+                    <tr>
+                        <td>CIDR Notation:</td>
+                        <td><span id="cidrNotation"></span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <hr> <!-- Horizontal line separating sections -->
+
+        <div style="margin: 20px 0;">
+            <h3>Reserve a subnet:</h3>
+            <input type="text" id="reservedSubnetInput" placeholder="Enter Reserved Subnet" />
+            <button id="addReservedButton">Add</button>
+        </div>
+
+        <!-- Table for displaying subnets -->
+        <table id="subnetTable">
+            <thead>
                 <tr>
-                    <td>IP Address:</td>
-                    <td><span id="ipAddress"></span></td>
+                    <th>Subnet</th>
+                    <th>Usable Host Range</th>
+                    <th>Available IPs</th>
+                    <th>Status</th>
+                    <th>Action</th>
                 </tr>
-                <tr>
-                    <td>Network Address:</td>
-                    <td><span id="networkAddress"></span></td>
-                </tr>
-                <tr>
-                    <td>Usable Host IP Range:</td>
-                    <td><span id="usableHostRange"></span></td>
-                </tr>
-                <tr>
-                    <td>Broadcast Address:</td>
-                    <td><span id="broadcastAddress"></span></td>
-                </tr>
-                <tr>
-                    <td>Number of Usable Hosts:</td>
-                    <td><span id="usableHostsCount"></span></td>
-                </tr>
-                <tr>
-                    <td>Subnet Mask:</td>
-                    <td><span id="subnetMask"></span></td>
-                </tr>
-                <tr>
-                    <td>Wildcard Mask:</td>
-                    <td><span id="wildcardMask"></span></td>
-                </tr>
-                <tr>
-                    <td>CIDR Notation:</td>
-                    <td><span id="cidrNotation"></span></td>
-                </tr>
+            </thead>
+            <tbody id="subnetTableBody">
+                <!-- Table rows will be dynamically added here -->
             </tbody>
         </table>
     </div>
-
-    <hr> <!-- Horizontal line separating sections -->
-
-    <div style="margin: 20px 0;">
-        <h3>Reserve a subnet:</h3>
-        <input type="text" id="reservedSubnetInput" placeholder="Enter Reserved Subnet" />
-        <button id="addReservedButton">Add</button>
-    </div>
-
-    <!-- Table for displaying subnets -->
-    <table id="subnetTable">
-        <thead>
-            <tr>
-                <th>Subnet</th>
-                <th>Usable Host Range</th>
-                <th>Available IPs</th>
-                <th>Status</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="subnetTableBody">
-            <!-- Table rows will be dynamically added here -->
-        </tbody>
-    </table>
 
     <script src="app.js"></script>
 </body>
