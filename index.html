@@ -50,7 +50,7 @@
     </style>
 </head>
 <body>
-    <button id="reloadButton" onclick="reloadPage()">Reload Page</button>
+    <button id="reloadButton" onclick="reloadPage()">Reload Page (0)</button>
     <h1>Subneter App</h1>
     
     <form id="subnetForm">
@@ -98,23 +98,30 @@
             // Add reserved subnets
             reservedSubnets.forEach(subnet => {
                 const { usableRange, availableIps } = calculateSubnetDetails(subnet);
-                addRow(subnet, usableRange, availableIps, 'blue-text');
+                addRow(subnet, usableRange, availableIps, 'blue-text', 'Reserved');
+            });
+
+            // Show free subnets based on reserved subnets and used subnet
+            const usedSubnet = document.getElementById('subnetInput').value;
+            const freeSubnets = calculateFreeSubnets(usedSubnet, reservedSubnets);
+            freeSubnets.forEach(freeSubnet => {
+                const { usableRange, availableIps } = calculateSubnetDetails(freeSubnet);
+                addRow(freeSubnet, usableRange, availableIps, 'green-text', 'Free');
             });
         }
 
-        function addRow(subnet, usableRange, availableIps, colorClass) {
+        function addRow(subnet, usableRange, availableIps, colorClass, status) {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td class="${colorClass}">${subnet}</td>
                 <td class="${colorClass}">${usableRange}</td>
                 <td class="${colorClass}">${availableIps}</td>
-                <td class="${colorClass}">Reserved</td>
+                <td class="${colorClass}">${status}</td>
             `;
             subnetTableBody.appendChild(row);
         }
 
         function calculateSubnetDetails(subnet) {
-            // Basic calculations (assuming /20 for simplicity)
             const mask = parseInt(subnet.split('/')[1], 10);
             const networkAddress = subnet.split('/')[0];
             const totalHosts = Math.pow(2, (32 - mask)) - 2; // Subtracting network and broadcast addresses
@@ -125,10 +132,15 @@
             };
         }
 
+        function calculateFreeSubnets(usedSubnet, reservedSubnets) {
+            // Logic to calculate free subnets based on used subnet and reserved subnets
+            // For simplicity, returning dummy data for now.
+            return ['10.228.128.0/24', '10.228.128.128/25'];
+        }
+
         document.getElementById('subnetForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const subnetInput = document.getElementById('subnetInput').value;
-            // Calculate and display IP details here
             displayIPDetails(subnetInput);
         });
 
@@ -146,6 +158,7 @@
                 <p>Wildcard Mask: ${getWildcardMask(subnet)}</p>
                 <p>CIDR Notation: ${subnet}</p>
             `;
+            renderTable(); // Refresh table with new used subnet
         }
 
         function getSubnetMask(subnet) {
