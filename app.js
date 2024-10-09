@@ -44,6 +44,7 @@ function renderTable() {
         addRow(subnet, "10.228.128.0 - 10.228.128.254", "254", 'blue-text', 'Reserved');
     });
 
+    // Add free subnet example
     if (reservedSubnets.length > 0) {
         addRow("10.228.128.128/25", "10.228.128.128 - 10.228.128.254", "126", 'green-text', 'Free');
     }
@@ -70,6 +71,7 @@ function addRow(subnet, usableRange, availableIps, statusColor, status) {
     deleteButton.className = 'delete-button';
     deleteButton.onclick = function() {
         row.remove();
+        reservedSubnets = reservedSubnets.filter(rs => rs !== subnet);
     };
     actionCell.appendChild(deleteButton);
 }
