@@ -3,33 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subneter</title>
+    <title>Subneter App</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f8ff;
             color: #333;
-            margin: 0;
+            margin: 20px;
             padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        h1, h3 {
-            color: #007acc;
+        h1 {
+            color: #0056b3;
         }
-        input[type="text"], button {
+        input[type="text"] {
+            width: calc(100% - 20px);
             padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #007acc;
-            border-radius: 5px;
-            width: calc(100% - 22px); /* Adjusted for padding and border */
-            max-width: 400px; /* Max width for the input */
+            margin-bottom: 10px;
         }
         button {
-            background-color: #007acc;
+            padding: 10px 15px;
+            background-color: #0056b3;
             color: white;
+            border: none;
+            border-radius: 5px;
             cursor: pointer;
         }
         button:hover {
-            background-color: #005f99;
+            background-color: #003d7a;
         }
         table {
             width: 100%;
@@ -37,44 +39,41 @@
             margin-top: 20px;
         }
         th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            padding: 10px;
+            border: 1px solid #ccc;
             text-align: left;
         }
         th {
-            background-color: #e0f7ff;
-        }
-        tbody tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        @media (max-width: 600px) {
-            input[type="text"], button {
-                width: 100%; /* Full width on smaller screens */
-            }
+            background-color: #0056b3;
+            color: white;
         }
     </style>
 </head>
 <body>
     <h1>Subneter App</h1>
-    <input type="text" id="subnet" placeholder="Enter base subnet (e.g., 10.228.128.0/17)">
+    <input type="text" id="subnet" placeholder="Enter Used Subnet (e.g., 10.228.128.0/17)">
     <button onclick="calculate()">Calculate Free Subnets</button>
-
+    
     <h3>Add Reserved Subnet</h3>
-    <input type="text" id="reserved-subnet" placeholder="Enter reserved subnet (e.g., 10.228.128.0/20)">
+    <input type="text" id="reserved-subnet" placeholder="Enter Reserved Subnet (e.g., 10.228.128.0/20)">
     <button onclick="addReservedSubnet()">Add Reserved Subnet</button>
-
+    
+    <div id="load-count">Page Loaded: 0 times</div>
+    <button onclick="reloadPage()">Reload Page</button>
+    
     <h3>Used Subnets</h3>
     <ul id="used-list"></ul>
-
+    
     <h3>Reserved Subnets</h3>
     <ul id="reserved-list"></ul>
-
+    
     <h3>Free Subnets</h3>
     <table>
         <thead>
             <tr>
                 <th>Free Subnet</th>
                 <th>Usable IP Range</th>
+                <th>Subnet Mask</th>
             </tr>
         </thead>
         <tbody id="free-list"></tbody>
