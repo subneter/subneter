@@ -18,7 +18,7 @@ function calculate() {
 
     // Calculate and display free subnets
     const freeSubnets = calculateFreeSubnets(subnet, reservedSubnets);
-    const freeListTable = freeSubnets.map(free => `<tr><td>${free.subnet}</td><td>${free.usableRange}</td></tr>`).join('');
+    const freeListTable = freeSubnets.map(free => `<tr><td>${free.subnet}</td><td>${free.usableRange}</td><td>${free.subnetMask}</td></tr>`).join('');
     document.getElementById('free-list').innerHTML = freeListTable;
 }
 
@@ -46,7 +46,8 @@ function calculateFreeSubnets(baseSubnet, reserved) {
         if (lastIP < ip) {
             const freeSubnet = ipToCIDR(lastIP, ip - 1);
             const usableRange = `${decimalToIP(lastIP)} to ${decimalToIP(ip - 1)}`;
-            freeSubnets.push({ subnet: freeSubnet, usableRange });
+            const subnetMask = getSubnetMask(freeSubnet);
+            freeSubnets.push({ subnet: freeSubnet, usableRange, subnetMask });
         }
         lastIP = ip; // Move to the next IP after the reserved subnet
     }
@@ -54,7 +55,8 @@ function calculateFreeSubnets(baseSubnet, reserved) {
     if (lastIP <= baseRange.endIP) {
         const freeSubnet = ipToCIDR(lastIP, baseRange.endIP);
         const usableRange = `${decimalToIP(lastIP)} to ${decimalToIP(baseRange.endIP)}`;
-        freeSubnets.push({ subnet: freeSubnet, usableRange });
+        const subnetMask = getSubnetMask(freeSubnet);
+        freeSubnets.push({ subnet: freeSubnet, usableRange, subnetMask });
     }
 
     return freeSubnets;
@@ -78,4 +80,10 @@ function decimalToIP(decimal) {
 
 function ipToCIDR(start, end) {
     return `${decimalToIP(start)}/${32 - Math.floor(Math.log2(end - start + 1))}`;
+}
+
+function getSubnetMask(cidr) {
+    const prefix = parseInt(cidr.split('/')[1]);
+    const mask = 0xFFFFFFFF << (32 - prefix) >>> 0; // Create mask
+    return [(mask >>> 24) & 255, (mask >>> 16) & 255, (mask >>> 8) & 255, mask & 255].join('.');
 }
