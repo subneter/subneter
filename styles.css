@@ -82,7 +82,7 @@ button:hover {
     color: green;
 }
 
-.delete-button {
+.deleteButton {
     background-color: lightcoral;
     color: white;
     border: none;
@@ -90,12 +90,20 @@ button:hover {
     width: 25px;
     height: 25px;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.delete-button:hover {
+.deleteButton:hover {
     background-color: red;
 }
 
 hr {
     margin: 20px 0;
+}
+
+.table-row {
+    display: flex;
+    justify-content: space-between;
 }
