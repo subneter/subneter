@@ -10,8 +10,15 @@
     <input type="text" id="subnet" placeholder="Enter base subnet (e.g., 10.228.128.0/17)">
     <button onclick="calculate()">Calculate Free Subnets</button>
 
+    <h3>Add Reserved Subnet</h3>
+    <input type="text" id="reserved-subnet" placeholder="Enter reserved subnet (e.g., 10.228.128.0/20)">
+    <button onclick="addReservedSubnet()">Add Reserved Subnet</button>
+
     <h3>Used Subnets</h3>
     <ul id="used-list"></ul>
+
+    <h3>Reserved Subnets</h3>
+    <ul id="reserved-list"></ul>
 
     <h3>Free Subnets</h3>
     <ul id="free-list"></ul>
