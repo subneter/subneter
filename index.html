@@ -9,76 +9,111 @@
             font-family: Arial, sans-serif;
             background-color: #f0f8ff;
             color: #333;
-            margin: 20px;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
         h1 {
-            color: #0056b3;
-        }
-        input[type="text"] {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-        button {
-            padding: 10px 15px;
-            background-color: #0056b3;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #003d7a;
+            color: #1e90ff;
         }
         table {
-            width: 100%;
+            width: 80%;
+            margin: 20px auto;
             border-collapse: collapse;
-            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ccc;
         }
         th, td {
             padding: 10px;
-            border: 1px solid #ccc;
             text-align: left;
         }
         th {
-            background-color: #0056b3;
+            background-color: #f4f4f4;
+        }
+        .blue-text {
+            color: blue;
+        }
+        .green-text {
+            color: green;
+        }
+        #reloadButton {
+            background-color: #ffa07a;
             color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        #reloadButton:hover {
+            background-color: #ff7f50;
         }
     </style>
 </head>
 <body>
+    <button id="reloadButton" onclick="window.location.reload()">Reload Page</button>
     <h1>Subneter App</h1>
-    <input type="text" id="subnet" placeholder="Enter Used Subnet (e.g., 10.228.128.0/17)">
-    <button onclick="calculate()">Calculate Free Subnets</button>
-    
-    <h3>Add Reserved Subnet</h3>
-    <input type="text" id="reserved-subnet" placeholder="Enter Reserved Subnet (e.g., 10.228.128.0/20)">
-    <button onclick="addReservedSubnet()">Add Reserved Subnet</button>
-    
-    <div id="load-count">Page Loaded: 0 times</div>
-    <button onclick="reloadPage()">Reload Page</button>
-    
-    <h3>Used Subnets</h3>
-    <ul id="used-list"></ul>
-    
-    <h3>Reserved Subnets</h3>
-    <ul id="reserved-list"></ul>
-    
-    <h3>Free Subnets</h3>
+    <form id="subnetForm">
+        <label for="subnetInput">Enter Subnet (e.g., 10.228.128.0/17):</label>
+        <input type="text" id="subnetInput" required>
+        <button type="submit">Add Reserved Subnet</button>
+    </form>
     <table>
         <thead>
             <tr>
-                <th>Free Subnet</th>
-                <th>Usable IP Range</th>
-                <th>Subnet Mask</th>
+                <th>Subnet</th>
+                <th>Type</th>
+                <th>Equivalent Subnet Mask</th>
             </tr>
         </thead>
-        <tbody id="free-list"></tbody>
+        <tbody id="subnetTableBody">
+            <!-- Subnets will be dynamically inserted here -->
+        </tbody>
     </table>
 
-    <script src="app.js"></script>
+    <script>
+        const usedSubnet = '10.228.128.0/17';
+        const subnetTableBody = document.getElementById('subnetTableBody');
+        let reservedSubnets = [];
+
+        const subnetMasks = {
+            24: '255.255.255.0',
+            25: '255.255.255.128',
+            26: '255.255.255.192',
+            27: '255.255.255.224',
+            28: '255.255.255.240',
+            29: '255.255.255.248',
+            30: '255.255.255.252'
+        };
+
+        function renderTable() {
+            subnetTableBody.innerHTML = '';
+            addRow(usedSubnet, 'Used', 'N/A', 'blue-text');
+            reservedSubnets.forEach(subnet => {
+                const mask = subnetMasks[subnet.split('/')[1]] || 'Unknown';
+                addRow(subnet, 'Reserved', mask, 'blue-text');
+            });
+            // Add the free subnets logic here and display in green
+        }
+
+        function addRow(subnet, type, mask, colorClass) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="${colorClass}">${subnet}</td>
+                <td class="${colorClass}">${type}</td>
+                <td class="${colorClass}">${mask}</td>
+            `;
+            subnetTableBody.appendChild(row);
+        }
+
+        document.getElementById('subnetForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const subnetInput = document.getElementById('subnetInput').value;
+            reservedSubnets.push(subnetInput);
+            renderTable();
+        });
+
+        // Initial render
+        renderTable();
+    </script>
 </body>
 </html>
