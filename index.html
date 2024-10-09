@@ -3,63 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subnet Calculator</title>
     <link rel="stylesheet" href="styles.css">
-    <title>Subnetter App</title>
 </head>
 <body>
     <div class="container">
-        <h1>Subneter App</h1>
+        <h1>Subnet Calculator</h1>
         
         <div class="form-section">
-            <label for="subnetInput">Enter Subnet (e.g., 10.228.128.0/17):</label>
-            <input type="text" id="subnetInput" placeholder="Enter subnet">
+            <label for="subnetInput">Enter Subnet:</label>
+            <input type="text" id="subnetInput" placeholder="e.g., 10.228.128.0/24">
             <button id="calculateButton">Calculate</button>
         </div>
         
+        <hr>
+
         <h2>Subnet Details:</h2>
         <table class="details-table">
-            <tr>
-                <td>IP Address:</td>
-                <td id="ipAddress"></td>
-            </tr>
-            <tr>
-                <td>Network Address:</td>
-                <td id="networkAddress"></td>
-            </tr>
-            <tr>
-                <td>Usable Host IP Range:</td>
-                <td id="usableIPRange"></td>
-            </tr>
-            <tr>
-                <td>Broadcast Address:</td>
-                <td id="broadcastAddress"></td>
-            </tr>
-            <tr>
-                <td>Number of Usable Hosts:</td>
-                <td id="usableHosts"></td>
-            </tr>
-            <tr>
-                <td>Subnet Mask:</td>
-                <td id="subnetMask"></td>
-            </tr>
-            <tr>
-                <td>Wildcard Mask:</td>
-                <td id="wildcardMask"></td>
-            </tr>
-            <tr>
-                <td>CIDR Notation:</td>
-                <td id="cidrNotation"></td>
-            </tr>
+            <tbody>
+                <tr>
+                    <td>IP Address:</td>
+                    <td id="ipAddress"></td>
+                </tr>
+                <tr>
+                    <td>Network Address:</td>
+                    <td id="networkAddress"></td>
+                </tr>
+                <tr>
+                    <td>Usable Host IP Range:</td>
+                    <td id="usableIPRange"></td>
+                </tr>
+                <tr>
+                    <td>Broadcast Address:</td>
+                    <td id="broadcastAddress"></td>
+                </tr>
+                <tr>
+                    <td>Number of Usable Hosts:</td>
+                    <td id="usableHosts"></td>
+                </tr>
+                <tr>
+                    <td>Subnet Mask:</td>
+                    <td id="subnetMask"></td>
+                </tr>
+                <tr>
+                    <td>Wildcard Mask:</td>
+                    <td id="wildcardMask"></td>
+                </tr>
+                <tr>
+                    <td>CIDR Notation:</td>
+                    <td id="cidrNotation"></td>
+                </tr>
+            </tbody>
         </table>
-        
+
         <hr>
 
         <div class="form-section">
-            <label for="reservedSubnetInput">Reserve a subnet:</label>
-            <input type="text" id="reservedSubnetInput" placeholder="Enter reserved subnet">
+            <label for="reservedSubnetInput">Reserve a Subnet:</label>
+            <input type="text" id="reservedSubnetInput" placeholder="e.g., 10.228.128.0/24">
             <button id="addReservedButton">Add</button>
         </div>
-        
+
         <h2>Reserved Subnets:</h2>
         <table class="subnet-table">
             <thead>
