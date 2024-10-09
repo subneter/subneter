@@ -50,19 +50,30 @@
     </style>
 </head>
 <body>
-    <button id="reloadButton" onclick="window.location.reload()">Reload Page</button>
+    <button id="reloadButton" onclick="reloadPage()">Reload Page</button>
     <h1>Subneter App</h1>
+    
     <form id="subnetForm">
         <label for="subnetInput">Enter Subnet (e.g., 10.228.128.0/17):</label>
         <input type="text" id="subnetInput" required>
+        <button type="submit">Calculate</button>
+    </form>
+
+    <div id="ipDetails"></div>
+
+    <form id="reserveSubnetForm">
+        <label for="reserveSubnetInput">Enter Reserved Subnet (e.g., 10.228.128.0/20):</label>
+        <input type="text" id="reserveSubnetInput" required>
         <button type="submit">Add Reserved Subnet</button>
     </form>
+
     <table>
         <thead>
             <tr>
                 <th>Subnet</th>
-                <th>Type</th>
-                <th>Equivalent Subnet Mask</th>
+                <th>Usable Host Range</th>
+                <th>Available IPs</th>
+                <th>Status</th>
             </tr>
         </thead>
         <tbody id="subnetTableBody">
@@ -71,44 +82,87 @@
     </table>
 
     <script>
-        const usedSubnet = '10.228.128.0/17';
         const subnetTableBody = document.getElementById('subnetTableBody');
         let reservedSubnets = [];
+        let reloadCount = 0;
 
-        const subnetMasks = {
-            24: '255.255.255.0',
-            25: '255.255.255.128',
-            26: '255.255.255.192',
-            27: '255.255.255.224',
-            28: '255.255.255.240',
-            29: '255.255.255.248',
-            30: '255.255.255.252'
-        };
-
-        function renderTable() {
-            subnetTableBody.innerHTML = '';
-            addRow(usedSubnet, 'Used', 'N/A', 'blue-text');
-            reservedSubnets.forEach(subnet => {
-                const mask = subnetMasks[subnet.split('/')[1]] || 'Unknown';
-                addRow(subnet, 'Reserved', mask, 'blue-text');
-            });
-            // Add the free subnets logic here and display in green
+        function reloadPage() {
+            reloadCount++;
+            document.getElementById('reloadButton').innerText = `Reload Page (${reloadCount})`;
+            window.location.reload();
         }
 
-        function addRow(subnet, type, mask, colorClass) {
+        function renderTable() {
+            subnetTableBody.innerHTML = ''; // Clear existing table rows
+
+            // Add reserved subnets
+            reservedSubnets.forEach(subnet => {
+                const { usableRange, availableIps } = calculateSubnetDetails(subnet);
+                addRow(subnet, usableRange, availableIps, 'blue-text');
+            });
+        }
+
+        function addRow(subnet, usableRange, availableIps, colorClass) {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td class="${colorClass}">${subnet}</td>
-                <td class="${colorClass}">${type}</td>
-                <td class="${colorClass}">${mask}</td>
+                <td class="${colorClass}">${usableRange}</td>
+                <td class="${colorClass}">${availableIps}</td>
+                <td class="${colorClass}">Reserved</td>
             `;
             subnetTableBody.appendChild(row);
+        }
+
+        function calculateSubnetDetails(subnet) {
+            // Basic calculations (assuming /20 for simplicity)
+            const mask = parseInt(subnet.split('/')[1], 10);
+            const networkAddress = subnet.split('/')[0];
+            const totalHosts = Math.pow(2, (32 - mask)) - 2; // Subtracting network and broadcast addresses
+            const usableRange = `${networkAddress} - ${networkAddress.split('.').slice(0, 3).join('.')}.${parseInt(networkAddress.split('.').pop()) + totalHosts}`;
+            return {
+                usableRange,
+                availableIps: totalHosts
+            };
         }
 
         document.getElementById('subnetForm').addEventListener('submit', function(event) {
             event.preventDefault();
             const subnetInput = document.getElementById('subnetInput').value;
-            reservedSubnets.push(subnetInput);
+            // Calculate and display IP details here
+            displayIPDetails(subnetInput);
+        });
+
+        function displayIPDetails(subnet) {
+            const ipDetailsDiv = document.getElementById('ipDetails');
+            const details = calculateSubnetDetails(subnet);
+            ipDetailsDiv.innerHTML = `
+                <h2>IP Details</h2>
+                <p>IP Address: ${subnet.split('/')[0]}</p>
+                <p>Network Address: ${subnet.split('/')[0]}</p>
+                <p>Usable Host IP Range: ${details.usableRange}</p>
+                <p>Broadcast Address: ${details.usableRange.split(' - ')[1]}</p>
+                <p>Number of Usable Hosts: ${details.availableIps}</p>
+                <p>Subnet Mask: ${getSubnetMask(subnet)}</p>
+                <p>Wildcard Mask: ${getWildcardMask(subnet)}</p>
+                <p>CIDR Notation: ${subnet}</p>
+            `;
+        }
+
+        function getSubnetMask(subnet) {
+            const mask = subnet.split('/')[1];
+            return subnetMasks[mask] || 'Unknown';
+        }
+
+        function getWildcardMask(subnet) {
+            const mask = subnet.split('/')[1];
+            const wildcard = (Math.pow(2, 32 - mask) - 1);
+            return `${wildcard >>> 24}.${(wildcard >>> 16) & 255}.${(wildcard >>> 8) & 255}.${wildcard & 255}`;
+        }
+
+        document.getElementById('reserveSubnetForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const reserveSubnetInput = document.getElementById('reserveSubnetInput').value;
+            reservedSubnets.push(reserveSubnetInput);
             renderTable();
         });
 
