@@ -1,4 +1,5 @@
 let reservedSubnets = [];
+let loadCount = 0; // Counter for page loads
 
 function addReservedSubnet() {
     const reservedSubnet = document.getElementById('reserved-subnet').value.trim();
@@ -20,6 +21,10 @@ function calculate() {
     const freeSubnets = calculateFreeSubnets(subnet, reservedSubnets);
     const freeListTable = freeSubnets.map(free => `<tr><td>${free.subnet}</td><td>${free.usableRange}</td><td>${free.subnetMask}</td></tr>`).join('');
     document.getElementById('free-list').innerHTML = freeListTable;
+
+    // Update load count
+    loadCount++;
+    document.getElementById('load-count').innerText = `Page Loaded: ${loadCount} times`;
 }
 
 function calculateFreeSubnets(baseSubnet, reserved) {
@@ -87,3 +92,14 @@ function getSubnetMask(cidr) {
     const mask = 0xFFFFFFFF << (32 - prefix) >>> 0; // Create mask
     return [(mask >>> 24) & 255, (mask >>> 16) & 255, (mask >>> 8) & 255, mask & 255].join('.');
 }
+
+// Reload the page and reset load count
+function reloadPage() {
+    location.reload();
+}
+
+// Initialize load count on page load
+document.addEventListener('DOMContentLoaded', () => {
+    loadCount = 0;
+    document.getElementById('load-count').innerText = `Page Loaded: ${loadCount} times`;
+});
