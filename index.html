@@ -8,210 +8,112 @@
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f8ff;
+            padding: 20px;
+        }
+
+        h3, h4 {
             color: #333;
-            text-align: center;
         }
-        h1 {
-            color: #1e90ff;
+
+        input[type="text"] {
+            padding: 8px;
+            width: 250px;
+            margin-right: 10px;
         }
-        table {
-            width: 80%;
-            margin: 20px auto;
-            border-collapse: collapse;
-        }
-        table, th, td {
-            border: 1px solid #ccc;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        .blue-text {
-            color: blue;
-        }
-        .green-text {
-            color: green;
-        }
-        #reloadButton {
-            background-color: #ffa07a;
+
+        button {
+            padding: 8px 12px;
+            background-color: #1e90ff;
             color: white;
             border: none;
-            padding: 10px 20px;
-            font-size: 16px;
             cursor: pointer;
-            margin-bottom: 20px;
+            border-radius: 5px;
         }
-        #reloadButton:hover {
-            background-color: #ff7f50;
+
+        button#reloadButton {
+            background-color: lightorange;
         }
-        .gap {
-            margin: 20px 0;
-        }
-        .remove-btn {
+
+        button.delete-button {
             background-color: lightcoral;
             color: red;
             border: none;
             border-radius: 50%;
             width: 25px;
             height: 25px;
+            text-align: center;
             cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
         }
+
+        .green-text {
+            color: green;
+        }
+
+        .blue-text {
+            color: blue;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid lightgray;
+            padding: 10px;
+            text-align: left;
+        }
+
         hr {
-            border: 0;
-            border-top: 1px solid #ccc;
-            margin: 20px 0;
+            border-top: 2px solid lightgray;
         }
     </style>
 </head>
 <body>
-    <button id="reloadButton" onclick="reloadPage()">Reload Page (0)</button>
-    <h1>Subneter App</h1>
-    
-    <form id="subnetForm">
-        <label for="subnetInput">Enter Subnet (e.g., 10.228.128.0/17):</label>
-        <input type="text" id="subnetInput" required>
-        <button type="submit">Calculate</button>
-    </form>
+    <button id="reloadButton">Reload (Count: 0)</button>
 
-    <div class="gap"></div> <!-- Gap added here -->
+    <div style="margin: 20px 0;">
+        <h3>Enter Subnet (e.g., 10.228.128.0/17):</h3>
+        <input type="text" id="subnetInput" placeholder="Enter Subnet" />
+        <button id="calculateButton">Calculate Free Subnets</button>
+    </div>
 
-    <hr> <!-- Horizontal line added here -->
+    <hr>
 
-    <div class="gap"></div> <!-- Additional gap -->
+    <div style="margin: 20px 0;">
+        <h3>Reserve a subnet:</h3>
+        <input type="text" id="reservedSubnetInput" placeholder="Enter Reserved Subnet" />
+        <button id="addReservedButton">Add</button>
+    </div>
 
-    <form id="reserveSubnetForm">
-        <label for="reserveSubnetInput">Reserve a Subnet:</label>
-        <input type="text" id="reserveSubnetInput" required>
-        <button type="submit">Add</button>
-    </form>
+    <div id="subnetDetails" style="margin-top: 20px;">
+        <h4>Subnet Details:</h4>
+        <p>IP Address: <span id="ipAddress"></span></p>
+        <p>Network Address: <span id="networkAddress"></span></p>
+        <p>Usable Host IP Range: <span id="usableHostRange"></span></p>
+        <p>Broadcast Address: <span id="broadcastAddress"></span></p>
+        <p>Number of Usable Hosts: <span id="usableHostsCount"></span></p>
+        <p>Subnet Mask: <span id="subnetMask"></span></p>
+        <p>Wildcard Mask: <span id="wildcardMask"></span></p>
+        <p>CIDR Notation: <span id="cidrNotation"></span></p>
+    </div>
 
-    <table>
+    <table id="subnetTable">
         <thead>
             <tr>
                 <th>Subnet</th>
                 <th>Usable Host Range</th>
                 <th>Available IPs</th>
                 <th>Status</th>
-                <th>Action</th> <!-- New Action column -->
+                <th>Action</th>
             </tr>
         </thead>
         <tbody id="subnetTableBody">
-            <!-- Subnets will be dynamically inserted here -->
+            <!-- Table rows will be dynamically added here -->
         </tbody>
     </table>
 
-    <script>
-        const subnetTableBody = document.getElementById('subnetTableBody');
-        let reservedSubnets = [];
-        let reloadCount = 0;
-
-        function reloadPage() {
-            reloadCount++;
-            document.getElementById('reloadButton').innerText = `Reload Page (${reloadCount})`;
-            window.location.reload();
-        }
-
-        function renderTable() {
-            subnetTableBody.innerHTML = ''; // Clear existing table rows
-
-            // Add reserved subnets
-            reservedSubnets.forEach(subnet => {
-                const { usableRange, availableIps } = calculateSubnetDetails(subnet);
-                addRow(subnet, usableRange, availableIps, 'blue-text', 'Reserved');
-            });
-
-            // Show free subnets based on reserved subnets and used subnet
-            const usedSubnet = document.getElementById('subnetInput').value;
-            const freeSubnets = calculateFreeSubnets(usedSubnet, reservedSubnets);
-            freeSubnets.forEach(freeSubnet => {
-                const { usableRange, availableIps } = calculateSubnetDetails(freeSubnet);
-                addRow(freeSubnet, usableRange, availableIps, 'green-text', 'Free');
-            });
-        }
-
-        function addRow(subnet, usableRange, availableIps, colorClass, status) {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td class="${colorClass}">${subnet}</td>
-                <td class="${colorClass}">${usableRange}</td>
-                <td class="${colorClass}">${availableIps}</td>
-                <td class="${colorClass}">${status}</td>
-                <td><button class="remove-btn" onclick="removeSubnet('${subnet}')">X</button></td>
-            `;
-            subnetTableBody.appendChild(row);
-        }
-
-        function calculateSubnetDetails(subnet) {
-            const mask = parseInt(subnet.split('/')[1], 10);
-            const networkAddress = subnet.split('/')[0];
-            const totalHosts = Math.pow(2, (32 - mask)) - 2; // Subtracting network and broadcast addresses
-            const usableRange = `${networkAddress} - ${networkAddress.split('.').slice(0, 3).join('.')}.${parseInt(networkAddress.split('.').pop()) + totalHosts}`;
-            return {
-                usableRange,
-                availableIps: totalHosts
-            };
-        }
-
-        function calculateFreeSubnets(usedSubnet, reservedSubnets) {
-            // Logic to calculate free subnets based on used subnet and reserved subnets
-            // For simplicity, returning dummy data for now.
-            return ['10.228.128.0/24', '10.228.128.128/25'];
-        }
-
-        document.getElementById('subnetForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const subnetInput = document.getElementById('subnetInput').value;
-            displayIPDetails(subnetInput);
-        });
-
-        function displayIPDetails(subnet) {
-            const ipDetailsDiv = document.getElementById('ipDetails');
-            const details = calculateSubnetDetails(subnet);
-            ipDetailsDiv.innerHTML = `
-                <h2>IP Details</h2>
-                <p>IP Address: ${subnet.split('/')[0]}</p>
-                <p>Network Address: ${subnet.split('/')[0]}</p>
-                <p>Usable Host IP Range: ${details.usableRange}</p>
-                <p>Broadcast Address: ${details.usableRange.split(' - ')[1]}</p>
-                <p>Number of Usable Hosts: ${details.availableIps}</p>
-                <p>Subnet Mask: ${getSubnetMask(subnet)}</p>
-                <p>Wildcard Mask: ${getWildcardMask(subnet)}</p>
-                <p>CIDR Notation: ${subnet}</p>
-            `;
-            renderTable(); // Refresh table with new used subnet
-        }
-
-        function getSubnetMask(subnet) {
-            const mask = subnet.split('/')[1];
-            return subnetMasks[mask] || 'Unknown';
-        }
-
-        function getWildcardMask(subnet) {
-            const mask = subnet.split('/')[1];
-            const wildcard = (Math.pow(2, 32 - mask) - 1);
-            return `${wildcard >>> 24}.${(wildcard >>> 16) & 255}.${(wildcard >>> 8) & 255}.${wildcard & 255}`;
-        }
-
-        document.getElementById('reserveSubnetForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const reserveSubnetInput = document.getElementById('reserveSubnetInput').value;
-            reservedSubnets.push(reserveSubnetInput);
-            renderTable();
-        });
-
-        function removeSubnet(subnet) {
-            reservedSubnets = reservedSubnets.filter(reserved => reserved !== subnet);
-            renderTable(); // Refresh the table
-        }
-
-        // Initial render
-        renderTable();
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
