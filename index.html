@@ -3,89 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
     <title>Subneter App</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f8ff;
-            color: #333;
-        }
-        .container {
-            width: 80%;
-            margin: auto;
-            padding: 20px;
-            background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-        }
-        .btn {
-            padding: 10px 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 5px 0;
-        }
-        .btn-danger {
-            background-color: #dc3545;
-        }
-        .blue-text {
-            color: blue;
-        }
-        .green-text {
-            color: green;
-        }
-        table {
-            width: 100%;
-            margin-top: 20px;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        #subnetDetails, #reserveSubnet {
-            margin-top: 20px;
-            border-top: 2px solid #007bff;
-            padding-top: 20px;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
         <h1>Subneter App</h1>
-        <input type="text" id="subnetInput" placeholder="Enter Subnet (e.g., 10.228.128.0/17):">
-        <button id="calculateButton" class="btn">Calculate</button>
-        <div id="subnetDetails">
-            <h2>Subnet Details:</h2>
-            <p>IP Address: <span id="ipAddress"></span></p>
-            <p>Network Address: <span id="networkAddress"></span></p>
-            <p>Usable Host IP Range: <span id="usableHostRange"></span></p>
-            <p>Broadcast Address: <span id="broadcastAddress"></span></p>
-            <p>Number of Usable Hosts: <span id="usableHostsCount"></span></p>
-            <p>Subnet Mask: <span id="subnetMask"></span></p>
-            <p>Wildcard Mask: <span id="wildcardMask"></span></p>
-            <p>CIDR Notation: <span id="cidrNotation"></span></p>
+
+        <button id="clearCacheButton">Clear Cache</button>
+
+        <div class="form-section">
+            <label for="subnetInput">Enter Subnet (e.g., 10.228.128.0/17):</label>
+            <input type="text" id="subnetInput" placeholder="Enter subnet here">
+            <button id="calculateButton">Calculate</button>
         </div>
 
-        <div id="reserveSubnet">
-            <h2>Reserve a Subnet:</h2>
-            <input type="text" id="reservedSubnetInput" placeholder="Enter Reserved Subnet:">
-            <button id="addReservedButton" class="btn">Add</button>
+        <h2>Subnet Details:</h2>
+        <table class="details-table">
+            <tr>
+                <td>IP Address:</td>
+                <td id="ipAddress"></td>
+            </tr>
+            <tr>
+                <td>Network Address:</td>
+                <td id="networkAddress"></td>
+            </tr>
+            <tr>
+                <td>Usable Host IP Range:</td>
+                <td id="usableHostRange"></td>
+            </tr>
+            <tr>
+                <td>Broadcast Address:</td>
+                <td id="broadcastAddress"></td>
+            </tr>
+            <tr>
+                <td>Number of Usable Hosts:</td>
+                <td id="usableHostsCount"></td>
+            </tr>
+            <tr>
+                <td>Subnet Mask:</td>
+                <td id="subnetMask"></td>
+            </tr>
+            <tr>
+                <td>Wildcard Mask:</td>
+                <td id="wildcardMask"></td>
+            </tr>
+            <tr>
+                <td>CIDR Notation:</td>
+                <td id="cidrNotation"></td>
+            </tr>
+        </table>
+
+        <hr>
+
+        <div class="form-section">
+            <label for="reservedSubnetInput">Reserve a subnet:</label>
+            <input type="text" id="reservedSubnetInput" placeholder="Enter reserved subnet here">
+            <button id="addReservedButton">Add</button>
         </div>
 
-        <button id="reloadButton" class="btn">Reload (Count: 0)</button>
-        <button id="clearCacheButton" class="btn btn-danger">Clear Cache</button>
-
-        <table>
+        <h2>Reserved Subnets:</h2>
+        <table class="subnet-table">
             <thead>
                 <tr>
                     <th>Subnet</th>
@@ -95,9 +73,7 @@
                     <th>Action</th>
                 </tr>
             </thead>
-            <tbody id="subnetTableBody">
-                <!-- Reserved subnets will be added here -->
-            </tbody>
+            <tbody id="subnetTableBody"></tbody>
         </table>
     </div>
 
