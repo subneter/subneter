@@ -3,77 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subnet Calculator</title>
     <link rel="stylesheet" href="styles.css">
+    <title>Subnet Calculator</title>
 </head>
 <body>
     <div class="container">
-        <h1>Subneter App</h1>
+        <h1>Subnet Calculator</h1>
         <div class="form-section">
-            <label for="subnetInput">Enter Subnet (e.g., 10.228.128.0/17):</label>
-            <input type="text" id="subnetInput" placeholder="Enter Subnet" />
-            <button id="calculateBtn">Calculate</button>
+            <label for="subnet-input">Enter Subnet (e.g., 10.228.128.0/17):</label>
+            <input type="text" id="subnet-input" placeholder="10.228.128.0/17" />
+            <button id="calculate-button">Calculate</button>
         </div>
-        <div class="details-table">
+        <hr>
+        <div class="subnet-details">
             <h2>Subnet Details:</h2>
             <table class="details-table">
                 <tr>
                     <td>IP Address:</td>
-                    <td id="ipAddress"></td>
+                    <td id="ip-address"></td>
                 </tr>
                 <tr>
                     <td>Network Address:</td>
-                    <td id="networkAddress"></td>
+                    <td id="network-address"></td>
                 </tr>
                 <tr>
                     <td>Usable Host IP Range:</td>
-                    <td id="usableHostRange"></td>
+                    <td id="usable-ip-range"></td>
                 </tr>
                 <tr>
                     <td>Broadcast Address:</td>
-                    <td id="broadcastAddress"></td>
+                    <td id="broadcast-address"></td>
                 </tr>
                 <tr>
                     <td>Number of Usable Hosts:</td>
-                    <td id="usableHosts"></td>
+                    <td id="usable-hosts"></td>
                 </tr>
                 <tr>
                     <td>Subnet Mask:</td>
-                    <td id="subnetMask"></td>
+                    <td id="subnet-mask"></td>
                 </tr>
                 <tr>
                     <td>Wildcard Mask:</td>
-                    <td id="wildcardMask"></td>
+                    <td id="wildcard-mask"></td>
                 </tr>
                 <tr>
                     <td>CIDR Notation:</td>
-                    <td id="cidrNotation"></td>
+                    <td id="cidr-notation"></td>
                 </tr>
             </table>
         </div>
-        <hr>
         <div class="form-section">
-            <label for="reservedSubnetInput">Reserve a Subnet:</label>
-            <input type="text" id="reservedSubnetInput" placeholder="Enter Reserved Subnet" />
-            <button id="addReservedBtn">Add</button>
+            <label for="reserve-input">Reserve a Subnet:</label>
+            <input type="text" id="reserve-input" placeholder="10.228.128.0/20" />
+            <button id="add-reserved-button">Add</button>
+            <div id="error-message" style="color: red; margin-top: 5px;"></div>
         </div>
-        <div>
-            <h2>Subnet Table:</h2>
-            <table class="subnet-table">
-                <thead>
-                    <tr>
-                        <th>Subnet</th>
-                        <th>Usable Host Range</th>
-                        <th>Available IPs</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="subnetTableBody">
-                </tbody>
-            </table>
-        </div>
-        <button id="reloadBtn">Reload</button>
+        <hr>
+        <h2>Reserved Subnets:</h2>
+        <table class="subnet-table">
+            <thead>
+                <tr>
+                    <th>Subnet</th>
+                    <th>Usable Host Range</th>
+                    <th>Available IPs</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="reserved-subnets"></tbody>
+        </table>
     </div>
     <script src="app.js"></script>
 </body>
