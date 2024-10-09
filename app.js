@@ -1,129 +1,102 @@
-document.getElementById('calculateButton').addEventListener('click', calculateSubnetDetails);
-document.getElementById('addReservedButton').addEventListener('click', addReservedSubnet);
-
-let reservedSubnets = [];
+let subnetData = {
+    reservedSubnets: [],
+    totalSubnets: []
+};
 
 function calculateSubnetDetails() {
-    const subnetInput = document.getElementById('subnetInput').value.trim();
-    const subnetParts = subnetInput.split('/');
+    const subnetInput = document.getElementById('subnetInput').value;
+    const [baseIp, prefixLength] = subnetInput.split('/');
+    const network = ip2long(baseIp);
+    const totalHosts = Math.pow(2, 32 - prefixLength);
+    const usableHosts = totalHosts - 2;
 
-    if (subnetParts.length !== 2) {
-        alert('Please enter a valid subnet in the format x.x.x.x/y');
-        return;
-    }
+    const ipAddress = baseIp;
+    const networkAddress = long2ip(network & ~((1 << (32 - prefixLength)) - 1));
+    const broadcastAddress = long2ip(network + totalHosts - 1);
+    const usableHostRange = `${long2ip(network + 1)} - ${long2ip(network + totalHosts - 2)}`;
+    const subnetMask = longToSubnetMask(prefixLength);
+    const wildcardMask = longToWildcardMask(prefixLength);
+    const cidrNotation = `/${prefixLength}`;
 
-    const ipAddress = subnetParts[0];
-    const subnetMaskLength = parseInt(subnetParts[1], 10);
+    // Populate the subnet details in the table
+    document.getElementById('ipAddress').innerText = ipAddress;
+    document.getElementById('networkAddress').innerText = networkAddress;
+    document.getElementById('usableHostRange').innerText = usableHostRange;
+    document.getElementById('broadcastAddress').innerText = broadcastAddress;
+    document.getElementById('usableHosts').innerText = usableHosts;
+    document.getElementById('subnetMask').innerText = subnetMask;
+    document.getElementById('wildcardMask').innerText = wildcardMask;
+    document.getElementById('cidrNotation').innerText = cidrNotation;
 
-    // Call the function to calculate subnet details
-    const subnetDetails = calculateSubnet(ipAddress, subnetMaskLength);
-    
-    if (subnetDetails) {
-        displaySubnetDetails(subnetDetails);
-    } else {
-        alert('Invalid subnet details.');
-    }
+    // Update the subnet table
+    updateSubnetTable();
 }
 
-function calculateSubnet(ipAddress, subnetMaskLength) {
-    // Convert IP address to a number
-    const ipParts = ipAddress.split('.').map(Number);
-    const ipNumber = (ipParts[0] << 24) | (ipParts[1] << 16) | (ipParts[2] << 8) | ipParts[3];
+function updateSubnetTable() {
+    const subnetTableBody = document.getElementById('subnetTableBody');
+    subnetTableBody.innerHTML = '';
 
-    // Calculate subnet mask
-    const subnetMask = ~((1 << (32 - subnetMaskLength)) - 1);
-    const networkAddress = ipNumber & subnetMask;
-    const broadcastAddress = networkAddress | ~subnetMask;
-    
-    // Calculate usable hosts
-    const usableHosts = (1 << (32 - subnetMaskLength)) - 2;
-    const usableRangeStart = networkAddress + 1;
-    const usableRangeEnd = broadcastAddress - 1;
+    // Used Subnet
+    subnetTableBody.innerHTML += `
+        <tr>
+            <td>${document.getElementById('subnetInput').value}</td>
+            <td>${document.getElementById('usableHostRange').innerText}</td>
+            <td>${document.getElementById('usableHosts').innerText}</td>
+            <td class="blue-text">Reserved</td>
+            <td><button class="delete-button" onclick="removeSubnet(this)">X</button></td>
+        </tr>
+    `;
 
-    // Calculate subnet mask in dotted decimal notation
-    const subnetMaskDotted = [
-        (subnetMask >>> 24) & 255,
-        (subnetMask >>> 16) & 255,
-        (subnetMask >>> 8) & 255,
-        subnetMask & 255
-    ].join('.');
-
-    // Calculate wildcard mask
-    const wildcardMask = ~subnetMask >>> 0;
-    const wildcardMaskDotted = [
-        (wildcardMask >>> 24) & 255,
-        (wildcardMask >>> 16) & 255,
-        (wildcardMask >>> 8) & 255,
-        wildcardMask & 255
-    ].join('.');
-
-    return {
-        ipAddress: ipAddress,
-        networkAddress: convertToDottedDecimal(networkAddress),
-        usableHostRange: `${convertToDottedDecimal(usableRangeStart)} - ${convertToDottedDecimal(usableRangeEnd)}`,
-        broadcastAddress: convertToDottedDecimal(broadcastAddress),
-        usableHosts: usableHosts,
-        subnetMask: subnetMaskDotted,
-        wildcardMask: wildcardMaskDotted,
-        cidrNotation: `/${subnetMaskLength}`
-    };
-}
-
-function convertToDottedDecimal(num) {
-    return [
-        (num >>> 24) & 255,
-        (num >>> 16) & 255,
-        (num >>> 8) & 255,
-        num & 255
-    ].join('.');
-}
-
-function displaySubnetDetails(details) {
-    document.getElementById('ipAddress').innerText = details.ipAddress;
-    document.getElementById('networkAddress').innerText = details.networkAddress;
-    document.getElementById('usableIPRange').innerText = details.usableHostRange;
-    document.getElementById('broadcastAddress').innerText = details.broadcastAddress;
-    document.getElementById('usableHosts').innerText = details.usableHosts;
-    document.getElementById('subnetMask').innerText = details.subnetMask;
-    document.getElementById('wildcardMask').innerText = details.wildcardMask;
-    document.getElementById('cidrNotation').innerText = details.cidrNotation;
-}
-
-function addReservedSubnet() {
-    const reservedInput = document.getElementById('reservedSubnetInput').value.trim();
-    const reservedParts = reservedInput.split('/');
-
-    if (reservedParts.length !== 2) {
-        alert('Please enter a valid reserved subnet in the format x.x.x.x/y');
-        return;
-    }
-
-    const reservedSubnet = reservedParts[0];
-    const reservedMaskLength = parseInt(reservedParts[1], 10);
-
-    // Add the reserved subnet to the table
-    reservedSubnets.push({ subnet: reservedInput, usableRange: 'N/A', availableIPs: 'N/A', status: 'Reserved' });
-    renderReservedSubnets();
-}
-
-function renderReservedSubnets() {
-    const tableBody = document.getElementById('reservedSubnetsTableBody');
-    tableBody.innerHTML = ''; // Clear existing entries
-
-    reservedSubnets.forEach((item, index) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${item.subnet}</td>
-            <td>${item.usableRange}</td>
-            <td>${item.availableIPs}</td>
-            <td style="color: blue;">${item.status}</td>
-            <td><button class="deleteButton" onclick="removeReservedSubnet(${index})">X</button></td>
+    // Reserved Subnets
+    for (let subnet of subnetData.reservedSubnets) {
+        subnetTableBody.innerHTML += `
+            <tr>
+                <td>${subnet.subnet}</td>
+                <td>${subnet.usableRange}</td>
+                <td>${subnet.availableIps}</td>
+                <td class="blue-text">Reserved</td>
+                <td><button class="delete-button" onclick="removeSubnet(this)">X</button></td>
+            </tr>
         `;
-        tableBody.appendChild(row);
-    });
+    }
+
+    // Free Subnets
+    for (let subnet of subnetData.totalSubnets) {
+        subnetTableBody.innerHTML += `
+            <tr>
+                <td>${subnet.subnet}</td>
+                <td>${subnet.usableRange}</td>
+                <td>${subnet.availableIps}</td>
+                <td class="green-text">Free</td>
+                <td><button class="delete-button" onclick="removeSubnet(this)">X</button></td>
+            </tr>
+        `;
+    }
 }
 
-function removeReservedSubnet(index) {
-    reservedSubnets.splice(index, 1); // Remove the reserved subnet
-    renderReservedSubnets(); // Re-render the table
+function removeSubnet(btn) {
+    const row = btn.parentNode.parentNode;
+    row.parentNode.removeChild(row);
 }
+
+function long2ip(long) {
+    return ((long >>> 24) + '.' +
+            ((long >> 16) & 255) + '.' +
+            ((long >> 8) & 255) + '.' +
+            (long & 255));
+}
+
+function ip2long(ip) {
+    return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet), 0) >>> 0;
+}
+
+function longToSubnetMask(prefix) {
+    const mask = (1 << 32) - (1 << (32 - prefix));
+    return long2ip(mask);
+}
+
+function longToWildcardMask(prefix) {
+    return long2ip((1 << 32) - (1 << (32 - prefix)));
+}
+
+document.getElementById('calculateBtn').addEventListener('click', calculateSubnetDetails);
