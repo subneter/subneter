@@ -11,21 +11,28 @@ const subnetTableBody = document.getElementById("subnetTableBody");
 function calculateSubnetDetails(subnet) {
     const [ip, prefix] = subnet.split("/");
     const ipParts = ip.split(".").map(Number);
-    const subnetMask = 32 - prefix;
-    const numUsableHosts = Math.pow(2, subnetMask) - 2;
+    
+    // Convert prefix to subnet mask
+    const subnetMask = (0xFFFFFFFF << (32 - prefix)) >>> 0;
+    const maskParts = [
+        (subnetMask >>> 24) & 255,
+        (subnetMask >>> 16) & 255,
+        (subnetMask >>> 8) & 255,
+        subnetMask & 255
+    ];
 
     // Calculate network address
-    const networkAddress = `${ipParts[0]}.${ipParts[1]}.${ipParts[2]}.${ipParts[3] & (255 << (8 - prefix % 8))}`;
+    const networkAddress = ipParts.map((part, index) => part & maskParts[index]).join(".");
+    
     // Calculate broadcast address
-    const broadcastAddress = `${ipParts[0]}.${ipParts[1]}.${ipParts[2]}.${(ipParts[3] & (255 >> (prefix % 8))) | (255 >> (8 - prefix % 8))}`;
+    const broadcastAddress = ipParts.map((part, index) => (part & maskParts[index]) | (~maskParts[index] & 255)).join(".");
+    
     // Calculate usable host range
-    const firstUsable = `${ipParts[0]}.${ipParts[1]}.${ipParts[2]}.${ipParts[3] + 1}`;
-    const lastUsable = `${broadcastAddress.split(".")[0]}.${broadcastAddress.split(".")[1]}.${broadcastAddress.split(".")[2]}.${
-        +broadcastAddress.split(".")[3] - 1
-    }`;
+    const firstUsable = `${networkAddress.split('.').slice(0, 3).join('.')}.${Number(networkAddress.split('.').pop()) + 1}`;
+    const lastUsable = `${broadcastAddress.split('.').slice(0, 3).join('.')}.${Number(broadcastAddress.split('.').pop()) - 1}`;
 
-    // Calculate subnet mask
-    const subnetMaskDecimal = getSubnetMask(prefix);
+    // Calculate number of usable hosts
+    const numUsableHosts = Math.pow(2, (32 - prefix)) - 2; // Total - Network - Broadcast
     
     // Update UI
     document.getElementById("ipAddress").textContent = ip;
@@ -33,25 +40,20 @@ function calculateSubnetDetails(subnet) {
     document.getElementById("usableHostRange").textContent = `${firstUsable} - ${lastUsable}`;
     document.getElementById("broadcastAddress").textContent = broadcastAddress;
     document.getElementById("usableHostsCount").textContent = numUsableHosts;
-    document.getElementById("subnetMask").textContent = subnetMaskDecimal;
+    document.getElementById("subnetMask").textContent = maskParts.join(".");
     document.getElementById("wildcardMask").textContent = getWildcardMask(prefix);
     document.getElementById("cidrNotation").textContent = `/${prefix}`;
 }
 
-// Get subnet mask in decimal format
-function getSubnetMask(prefix) {
-    const mask = (0xFFFFFFFF << (32 - prefix)) >>> 0;
+// Get wildcard mask in decimal format
+function getWildcardMask(prefix) {
+    const mask = (0xFFFFFFFF >>> prefix) >>> 0;
     return [
         (mask >>> 24) & 255,
         (mask >>> 16) & 255,
         (mask >>> 8) & 255,
         mask & 255
     ].join(".");
-}
-
-// Get wildcard mask in decimal format
-function getWildcardMask(prefix) {
-    return getSubnetMask(32 - prefix);
 }
 
 // Handle calculate button click
