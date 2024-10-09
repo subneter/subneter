@@ -69,6 +69,10 @@
             border-top: 2px solid lightgray;
             margin: 20px 0;
         }
+
+        .spaced {
+            margin-bottom: 30px;
+        }
     </style>
 </head>
 <body>
@@ -77,7 +81,47 @@
     <div style="margin: 20px 0;">
         <h3>Enter Subnet (e.g., 10.228.128.0/17):</h3>
         <input type="text" id="subnetInput" placeholder="Enter Subnet" />
-        <button id="calculateButton">Calculate Free Subnets</button>
+        <button id="calculateButton">Calculate</button>
+    </div>
+
+    <div id="subnetDetailsTable" class="spaced">
+        <h4>Subnet Details:</h4>
+        <table>
+            <tbody>
+                <tr>
+                    <td>IP Address:</td>
+                    <td><span id="ipAddress"></span></td>
+                </tr>
+                <tr>
+                    <td>Network Address:</td>
+                    <td><span id="networkAddress"></span></td>
+                </tr>
+                <tr>
+                    <td>Usable Host IP Range:</td>
+                    <td><span id="usableHostRange"></span></td>
+                </tr>
+                <tr>
+                    <td>Broadcast Address:</td>
+                    <td><span id="broadcastAddress"></span></td>
+                </tr>
+                <tr>
+                    <td>Number of Usable Hosts:</td>
+                    <td><span id="usableHostsCount"></span></td>
+                </tr>
+                <tr>
+                    <td>Subnet Mask:</td>
+                    <td><span id="subnetMask"></span></td>
+                </tr>
+                <tr>
+                    <td>Wildcard Mask:</td>
+                    <td><span id="wildcardMask"></span></td>
+                </tr>
+                <tr>
+                    <td>CIDR Notation:</td>
+                    <td><span id="cidrNotation"></span></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
     <hr>
@@ -86,18 +130,6 @@
         <h3>Reserve a subnet:</h3>
         <input type="text" id="reservedSubnetInput" placeholder="Enter Reserved Subnet" />
         <button id="addReservedButton">Add</button>
-    </div>
-
-    <div id="subnetDetails" style="margin-top: 20px;">
-        <h4>Subnet Details:</h4>
-        <p>IP Address: <span id="ipAddress"></span></p>
-        <p>Network Address: <span id="networkAddress"></span></p>
-        <p>Usable Host IP Range: <span id="usableHostRange"></span></p>
-        <p>Broadcast Address: <span id="broadcastAddress"></span></p>
-        <p>Number of Usable Hosts: <span id="usableHostsCount"></span></p>
-        <p>Subnet Mask: <span id="subnetMask"></span></p>
-        <p>Wildcard Mask: <span id="wildcardMask"></span></p>
-        <p>CIDR Notation: <span id="cidrNotation"></span></p>
     </div>
 
     <table id="subnetTable">
