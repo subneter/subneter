@@ -1,102 +1,108 @@
-let subnetData = {
-    reservedSubnets: [],
-    totalSubnets: []
-};
+const calculateButton = document.getElementById('calculate-button');
+const ipAddressField = document.getElementById('ip-address');
+const networkAddressField = document.getElementById('network-address');
+const usableIpRangeField = document.getElementById('usable-ip-range');
+const broadcastAddressField = document.getElementById('broadcast-address');
+const usableHostsField = document.getElementById('usable-hosts');
+const subnetMaskField = document.getElementById('subnet-mask');
+const wildcardMaskField = document.getElementById('wildcard-mask');
+const cidrNotationField = document.getElementById('cidr-notation');
 
-function calculateSubnetDetails() {
-    const subnetInput = document.getElementById('subnetInput').value;
-    const [baseIp, prefixLength] = subnetInput.split('/');
-    const network = ip2long(baseIp);
-    const totalHosts = Math.pow(2, 32 - prefixLength);
-    const usableHosts = totalHosts - 2;
+const reserveInput = document.getElementById('reserve-input');
+const addReservedButton = document.getElementById('add-reserved-button');
+const reservedSubnetsTable = document.getElementById('reserved-subnets');
+const errorMessage = document.getElementById('error-message');
 
-    const ipAddress = baseIp;
-    const networkAddress = long2ip(network & ~((1 << (32 - prefixLength)) - 1));
-    const broadcastAddress = long2ip(network + totalHosts - 1);
-    const usableHostRange = `${long2ip(network + 1)} - ${long2ip(network + totalHosts - 2)}`;
-    const subnetMask = longToSubnetMask(prefixLength);
-    const wildcardMask = longToWildcardMask(prefixLength);
-    const cidrNotation = `/${prefixLength}`;
+// History for last 5 entries
+let reserveHistory = JSON.parse(localStorage.getItem('reserveHistory')) || [];
+const MAX_HISTORY = 5;
 
-    // Populate the subnet details in the table
-    document.getElementById('ipAddress').innerText = ipAddress;
-    document.getElementById('networkAddress').innerText = networkAddress;
-    document.getElementById('usableHostRange').innerText = usableHostRange;
-    document.getElementById('broadcastAddress').innerText = broadcastAddress;
-    document.getElementById('usableHosts').innerText = usableHosts;
-    document.getElementById('subnetMask').innerText = subnetMask;
-    document.getElementById('wildcardMask').innerText = wildcardMask;
-    document.getElementById('cidrNotation').innerText = cidrNotation;
-
-    // Update the subnet table
-    updateSubnetTable();
+// Function to validate subnet input
+function validateSubnet(subnet) {
+    const subnetPattern = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\/([0-2][0-9]|3[0-2]|[0-1]?[0-9]))$/;
+    return subnetPattern.test(subnet);
 }
 
-function updateSubnetTable() {
-    const subnetTableBody = document.getElementById('subnetTableBody');
-    subnetTableBody.innerHTML = '';
+// Function to calculate subnet details
+function calculateSubnetDetails(subnet) {
+    // Example calculation for demonstration (replace with actual logic)
+    const [ip, cidr] = subnet.split('/');
+    const hosts = Math.pow(2, 32 - cidr) - 2; // Usable hosts calculation
+    return {
+        ipAddress: ip,
+        networkAddress: ip,
+        usableIpRange: `${ip} - ${ip}`,
+        broadcastAddress: ip,
+        usableHosts: hosts,
+        subnetMask: '255.255.255.0',
+        wildcardMask: '0.0.0.255',
+        cidrNotation: `/${cidr}`
+    };
+}
 
-    // Used Subnet
-    subnetTableBody.innerHTML += `
-        <tr>
-            <td>${document.getElementById('subnetInput').value}</td>
-            <td>${document.getElementById('usableHostRange').innerText}</td>
-            <td>${document.getElementById('usableHosts').innerText}</td>
-            <td class="blue-text">Reserved</td>
-            <td><button class="delete-button" onclick="removeSubnet(this)">X</button></td>
-        </tr>
-    `;
-
-    // Reserved Subnets
-    for (let subnet of subnetData.reservedSubnets) {
-        subnetTableBody.innerHTML += `
-            <tr>
-                <td>${subnet.subnet}</td>
-                <td>${subnet.usableRange}</td>
-                <td>${subnet.availableIps}</td>
-                <td class="blue-text">Reserved</td>
-                <td><button class="delete-button" onclick="removeSubnet(this)">X</button></td>
-            </tr>
-        `;
+// Calculate button functionality
+calculateButton.addEventListener('click', () => {
+    const subnet = document.getElementById('subnet-input').value;
+    if (validateSubnet(subnet)) {
+        const details = calculateSubnetDetails(subnet);
+        ipAddressField.textContent = details.ipAddress;
+        networkAddressField.textContent = details.networkAddress;
+        usableIpRangeField.textContent = details.usableIpRange;
+        broadcastAddressField.textContent = details.broadcastAddress;
+        usableHostsField.textContent = details.usableHosts;
+        subnetMaskField.textContent = details.subnetMask;
+        wildcardMaskField.textContent = details.wildcardMask;
+        cidrNotationField.textContent = details.cidrNotation;
+        errorMessage.textContent = ''; // Clear error message
+    } else {
+        errorMessage.textContent = 'Error: Invalid input. Input format: 10.228.128.0/17';
     }
+});
 
-    // Free Subnets
-    for (let subnet of subnetData.totalSubnets) {
-        subnetTableBody.innerHTML += `
-            <tr>
-                <td>${subnet.subnet}</td>
-                <td>${subnet.usableRange}</td>
-                <td>${subnet.availableIps}</td>
-                <td class="green-text">Free</td>
-                <td><button class="delete-button" onclick="removeSubnet(this)">X</button></td>
-            </tr>
+// Add reserved subnet functionality
+addReservedButton.addEventListener('click', () => {
+    const reservedSubnet = reserveInput.value.trim();
+    if (validateSubnet(reservedSubnet)) {
+        if (reserveHistory.includes(reservedSubnet)) {
+            alert('This subnet is already reserved.');
+            return;
+        }
+
+        // Add to history
+        reserveHistory.push(reservedSubnet);
+        if (reserveHistory.length > MAX_HISTORY) {
+            reserveHistory.shift(); // Remove oldest entry
+        }
+        localStorage.setItem('reserveHistory', JSON.stringify(reserveHistory));
+        
+        // Example Usable Host Range and Available IPs
+        const usableHostRange = `Usable range for ${reservedSubnet}`;
+        const availableIPs = Math.pow(2, 32 - parseInt(reservedSubnet.split('/')[1])) - 2;
+
+        // Add row to table
+        const row = reservedSubnetsTable.insertRow();
+        row.innerHTML = `
+            <td>${reservedSubnet}</td>
+            <td>${usableHostRange}</td>
+            <td>${availableIPs}</td>
+            <td style="color: blue;">Reserved</td>
+            <td><button class="delete-button">X</button></td>
         `;
+
+        // Clear the input
+        reserveInput.value = '';
+        errorMessage.textContent = ''; // Clear error message
+
+        // Delete button functionality
+        row.querySelector('.delete-button').addEventListener('click', () => {
+            reservedSubnetsTable.deleteRow(row.rowIndex - 1);
+        });
+    } else {
+        errorMessage.textContent = 'Error: Invalid input. Input format: 10.228.128.0/17';
     }
-}
+});
 
-function removeSubnet(btn) {
-    const row = btn.parentNode.parentNode;
-    row.parentNode.removeChild(row);
-}
-
-function long2ip(long) {
-    return ((long >>> 24) + '.' +
-            ((long >> 16) & 255) + '.' +
-            ((long >> 8) & 255) + '.' +
-            (long & 255));
-}
-
-function ip2long(ip) {
-    return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet), 0) >>> 0;
-}
-
-function longToSubnetMask(prefix) {
-    const mask = (1 << 32) - (1 << (32 - prefix));
-    return long2ip(mask);
-}
-
-function longToWildcardMask(prefix) {
-    return long2ip((1 << 32) - (1 << (32 - prefix)));
-}
-
-document.getElementById('calculateBtn').addEventListener('click', calculateSubnetDetails);
+// Load previous reserve history
+reserveHistory.forEach(subnet => {
+    reserveInput.value = subnet; // Pre-fill last entered subnet
+});
