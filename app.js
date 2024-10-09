@@ -1,5 +1,6 @@
 let reloadCount = 0;
 const reloadButton = document.getElementById("reloadButton");
+const clearCacheButton = document.getElementById("clearCacheButton");
 const subnetInput = document.getElementById("subnetInput");
 const calculateButton = document.getElementById("calculateButton");
 const reservedSubnetInput = document.getElementById("reservedSubnetInput");
@@ -88,6 +89,12 @@ function removeRow(button) {
 reloadButton.addEventListener("click", () => {
     reloadCount++;
     reloadButton.textContent = `Reload (Count: ${reloadCount})`;
+    location.reload();
+});
+
+// Clear cache functionality
+clearCacheButton.addEventListener("click", () => {
+    location.reload(true); // Force reload from server
 });
 
 // Ensure page reloads show the initial state
