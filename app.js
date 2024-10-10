@@ -1,26 +1,96 @@
-let subnetDetails = {};
-let slices = [];
-let freeSubnets = [];
-
 function calculateSubnetDetails(subnet) {
-    // Replace with logic to calculate subnet details
-    // Here, we're just setting some dummy values for demonstration
-    subnetDetails = {
-        ipAddress: subnet,
-        networkAddress: subnet.split('/')[0],
-        usableHostRange: `${subnet.split('/')[0]} - ${subnet.split('/')[0]}`, // Placeholder
-        broadcastAddress: subnet.split('/')[0],
-        usableHosts: 0, // Placeholder
-        subnetMask: '255.255.255.0', // Placeholder
-        wildcardMask: '0.0.0.255', // Placeholder
-        cidrNotation: subnet
-    };
+    const [ip, cidr] = subnet.split('/');
+    const subnetMask = getSubnetMask(parseInt(cidr));
+    const wildcardMask = getWildcardMask(subnetMask);
+    const networkAddress = calculateNetworkAddress(ip, subnetMask);
+    const broadcastAddress = calculateBroadcastAddress(networkAddress, subnetMask);
+    const usableHostRange = calculateUsableHostRange(networkAddress, broadcastAddress);
+    const usableHosts = calculateUsableHosts(parseInt(cidr));
 
-    // Example of calculating free subnets
-    freeSubnets = [{ subnet: subnet, usableHostRange: `${subnet.split('/')[0]} - ${subnet.split('/')[0]}`, availableIPs: 0 }];
+    subnetDetails = {
+        ipAddress: ip,
+        networkAddress: networkAddress,
+        usableHostRange: usableHostRange,
+        broadcastAddress: broadcastAddress,
+        usableHosts: usableHosts,
+        subnetMask: subnetMask,
+        wildcardMask: wildcardMask,
+        cidrNotation: `/${cidr}`,
+    };
 
     renderDetails();
     renderFreeSubnets();
+}
+
+function getSubnetMask(cidr) {
+    let mask = (0xFFFFFFFF << (32 - cidr)) >>> 0;
+    return [
+        (mask >>> 24) & 0xFF,
+        (mask >>> 16) & 0xFF,
+        (mask >>> 8) & 0xFF,
+        mask & 0xFF
+    ].join('.');
+}
+
+function getWildcardMask(subnetMask) {
+    return subnetMask
+        .split('.')
+        .map(octet => 255 - parseInt(octet))
+        .join('.');
+}
+
+function calculateNetworkAddress(ip, subnetMask) {
+    const ipArray = ipToArray(ip);
+    const maskArray = ipToArray(subnetMask);
+    const networkArray = ipArray.map((octet, index) => octet & maskArray[index]);
+    return networkArray.join('.');
+}
+
+function calculateBroadcastAddress(networkAddress, subnetMask) {
+    const networkArray = ipToArray(networkAddress);
+    const maskArray = ipToArray(subnetMask).map(octet => 255 - octet);
+    const broadcastArray = networkArray.map((octet, index) => octet | maskArray[index]);
+    return broadcastArray.join('.');
+}
+
+function calculateUsableHostRange(networkAddress, broadcastAddress) {
+    const ipRangeStart = increaseIpByOne(networkAddress);
+    const ipRangeEnd = decreaseIpByOne(broadcastAddress);
+    return `${ipRangeStart} - ${ipRangeEnd}`;
+}
+
+function calculateUsableHosts(cidr) {
+    return Math.pow(2, 32 - cidr) - 2;
+}
+
+function increaseIpByOne(ip) {
+    const ipArray = ip.split('.').map(Number);
+    for (let i = ipArray.length - 1; i >= 0; i--) {
+        if (ipArray[i] < 255) {
+            ipArray[i]++;
+            break;
+        } else {
+            ipArray[i] = 0;
+        }
+    }
+    return ipArray.join('.');
+}
+
+function decreaseIpByOne(ip) {
+    const ipArray = ip.split('.').map(Number);
+    for (let i = ipArray.length - 1; i >= 0; i--) {
+        if (ipArray[i] > 0) {
+            ipArray[i]--;
+            break;
+        } else {
+            ipArray[i] = 255;
+        }
+    }
+    return ipArray.join('.');
+}
+
+function ipToArray(ip) {
+    return ip.split('.').map(Number);
 }
 
 function renderDetails() {
@@ -33,51 +103,3 @@ function renderDetails() {
     document.getElementById('wildcardMask').innerText = subnetDetails.wildcardMask;
     document.getElementById('cidrNotation').innerText = subnetDetails.cidrNotation;
 }
-
-function renderFreeSubnets() {
-    const tableBody = document.getElementById('subnetTableBody');
-    tableBody.innerHTML = '';
-
-    freeSubnets.forEach((slice, index) => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${slice.subnet}</td>
-            <td>${slice.usableHostRange}</td>
-            <td>${slice.availableIPs}</td>
-            <td>Free</td>
-            <td><button class="delete-button" data-index="${index}">X</button></td>
-        `;
-        tableBody.appendChild(row);
-    });
-}
-
-document.getElementById('calculateButton').addEventListener('click', function () {
-    const subnetInput = document.getElementById('subnetInput').value;
-    if (subnetInput) {
-        calculateSubnetDetails(subnetInput);
-        document.getElementById('sliceErrorMessage').innerText = '';
-    } else {
-        document.getElementById('errorMessage').innerText = 'Error: Invalid input. Input format: 10.228.128.0/17';
-    }
-});
-
-document.getElementById('addSliceButton').addEventListener('click', function () {
-    const sliceInput = document.getElementById('sliceInput').value;
-    if (sliceInput) {
-        // Add logic to check if sliceInput is valid and not exceeding the main subnet
-        slices.push(sliceInput);
-        document.getElementById('sliceErrorMessage').innerText = '';
-        renderFreeSubnets(); // Update free subnets after adding slice
-    } else {
-        document.getElementById('sliceErrorMessage').innerText = 'Error: Invalid input. Input format: 10.228.128.0/20';
-    }
-});
-
-// Optional: Add functionality to remove slices and update free subnets accordingly
-document.getElementById('subnetTableBody').addEventListener('click', function (event) {
-    if (event.target.classList.contains('delete-button')) {
-        const index = event.target.getAttribute('data-index');
-        slices.splice(index, 1);
-        renderFreeSubnets(); // Update free subnets after removing slice
-    }
-});
