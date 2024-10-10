@@ -1,24 +1,18 @@
 document.addEventListener("DOMContentLoaded", function() {
-    let subnetData = {};
     let reservedSubnets = [];
+    let mainSubnet = '';
 
     document.getElementById("calculate-btn").addEventListener("click", function() {
-        const mainSubnet = document.getElementById("main-subnet").value;
-        // Clear the previous table and data
-        document.getElementById("subnet-table-body").innerHTML = '';
+        mainSubnet = document.getElementById("main-subnet").value;
+        
+        // Reset subnets and table on new calculation
         reservedSubnets = [];
-        // Call your calculation logic
+        document.getElementById("subnet-table-body").innerHTML = '';
+
         const details = calculateSubnetDetails(mainSubnet);
         if (details) {
-            // Fill the details table
-            document.getElementById("ip-address").textContent = details.ip;
-            document.getElementById("network-address").textContent = details.network;
-            document.getElementById("host-range").textContent = `${details.firstHost} - ${details.lastHost}`;
-            document.getElementById("broadcast-address").textContent = details.broadcast;
-            document.getElementById("usable-hosts").textContent = details.usableHosts;
-            document.getElementById("subnet-mask").textContent = details.subnetMask;
-            document.getElementById("wildcard-mask").textContent = details.wildcardMask;
-            document.getElementById("cidr-notation").textContent = details.cidr;
+            updateDetailsTable(details);
+            renderTable();
         } else {
             alert("Invalid main subnet");
         }
@@ -28,8 +22,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const reservedSubnet = document.getElementById("reserved-subnet").value;
         const errorMsg = document.getElementById("error-msg");
 
-        // Reset the error message
-        errorMsg.textContent = "";
+        errorMsg.textContent = ""; // Reset the error message
 
         if (validateSubnet(reservedSubnet)) {
             reservedSubnets.push(reservedSubnet);
@@ -49,7 +42,6 @@ document.addEventListener("DOMContentLoaded", function() {
         const tableBody = document.getElementById("subnet-table-body");
         tableBody.innerHTML = "";  // Clear previous entries
 
-        // Add reserved subnets in blue
         reservedSubnets.forEach(subnet => {
             const row = document.createElement("tr");
             row.innerHTML = `
@@ -62,12 +54,12 @@ document.addEventListener("DOMContentLoaded", function() {
             tableBody.appendChild(row);
         });
 
-        // Add free subnets (placeholder for actual logic)
-        const freeSubnet = "Free Subnet Example"; // Replace with actual free subnet calculation
+        // Placeholder free subnet logic, this should include actual calculation
+        const freeSubnet = mainSubnet; // For now, display main subnet as free
         const freeRow = document.createElement("tr");
         freeRow.innerHTML = `
             <td class="green-text">${freeSubnet}</td>
-            <td>-</td>  <!-- For simplicity, add usable host range calculation later -->
+            <td>-</td>  <!-- Usable host range -->
             <td>-</td>
             <td>Free</td>
             <td></td>
@@ -80,9 +72,19 @@ document.addEventListener("DOMContentLoaded", function() {
         renderTable();
     }
 
+    function updateDetailsTable(details) {
+        document.getElementById("ip-address").textContent = details.ip;
+        document.getElementById("network-address").textContent = details.network;
+        document.getElementById("host-range").textContent = `${details.firstHost} - ${details.lastHost}`;
+        document.getElementById("broadcast-address").textContent = details.broadcast;
+        document.getElementById("usable-hosts").textContent = details.usableHosts;
+        document.getElementById("subnet-mask").textContent = details.subnetMask;
+        document.getElementById("wildcard-mask").textContent = details.wildcardMask;
+        document.getElementById("cidr-notation").textContent = details.cidr;
+    }
+
     function calculateSubnetDetails(subnet) {
-        // Mock function - replace with your actual subnet calculation logic
-        // Example: 10.228.128.0/17
+        // Example logic - replace with actual calculations as needed
         if (subnet === "10.228.128.0/17") {
             return {
                 ip: "10.228.128.0",
@@ -96,6 +98,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 cidr: "/17"
             };
         }
-        return null; // Invalid subnet for simplicity
+        return null; // Invalid subnet
     }
 });
