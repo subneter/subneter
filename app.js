@@ -1,11 +1,30 @@
+document.getElementById('calculateBtn').addEventListener('click', function () {
+    const subnetInput = document.getElementById('subnet').value;
+    calculateSubnetDetails(subnetInput);
+});
+
+document.getElementById('addReservedBtn').addEventListener('click', function () {
+    const reservedSubnetInput = document.getElementById('reservedSubnet').value;
+    addReservedSubnet(reservedSubnetInput);
+});
+
+let subnetDetails = {};
+
 function calculateSubnetDetails(subnet) {
     const [ip, cidr] = subnet.split('/');
-    const subnetMask = getSubnetMask(parseInt(cidr));
+    const cidrNumber = parseInt(cidr);
+
+    if (isNaN(cidrNumber) || !validateIp(ip)) {
+        alert('Invalid input. Please enter a valid subnet (e.g., 10.228.128.0/17).');
+        return;
+    }
+
+    const subnetMask = getSubnetMask(cidrNumber);
     const wildcardMask = getWildcardMask(subnetMask);
     const networkAddress = calculateNetworkAddress(ip, subnetMask);
     const broadcastAddress = calculateBroadcastAddress(networkAddress, subnetMask);
     const usableHostRange = calculateUsableHostRange(networkAddress, broadcastAddress);
-    const usableHosts = calculateUsableHosts(parseInt(cidr));
+    const usableHosts = calculateUsableHosts(cidrNumber);
 
     subnetDetails = {
         ipAddress: ip,
@@ -19,7 +38,11 @@ function calculateSubnetDetails(subnet) {
     };
 
     renderDetails();
-    renderFreeSubnets();
+}
+
+function validateIp(ip) {
+    const parts = ip.split('.');
+    return parts.length === 4 && parts.every(part => parseInt(part) >= 0 && parseInt(part) <= 255);
 }
 
 function getSubnetMask(cidr) {
@@ -102,4 +125,8 @@ function renderDetails() {
     document.getElementById('subnetMask').innerText = subnetDetails.subnetMask;
     document.getElementById('wildcardMask').innerText = subnetDetails.wildcardMask;
     document.getElementById('cidrNotation').innerText = subnetDetails.cidrNotation;
+}
+
+function addReservedSubnet(subnet) {
+    // Implement reserved subnet logic
 }
