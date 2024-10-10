@@ -1,132 +1,101 @@
-document.getElementById('calculateBtn').addEventListener('click', function () {
-    const subnetInput = document.getElementById('subnet').value;
-    calculateSubnetDetails(subnetInput);
-});
+document.addEventListener("DOMContentLoaded", function() {
+    let subnetData = {};
+    let reservedSubnets = [];
 
-document.getElementById('addReservedBtn').addEventListener('click', function () {
-    const reservedSubnetInput = document.getElementById('reservedSubnet').value;
-    addReservedSubnet(reservedSubnetInput);
-});
-
-let subnetDetails = {};
-
-function calculateSubnetDetails(subnet) {
-    const [ip, cidr] = subnet.split('/');
-    const cidrNumber = parseInt(cidr);
-
-    if (isNaN(cidrNumber) || !validateIp(ip)) {
-        alert('Invalid input. Please enter a valid subnet (e.g., 10.228.128.0/17).');
-        return;
-    }
-
-    const subnetMask = getSubnetMask(cidrNumber);
-    const wildcardMask = getWildcardMask(subnetMask);
-    const networkAddress = calculateNetworkAddress(ip, subnetMask);
-    const broadcastAddress = calculateBroadcastAddress(networkAddress, subnetMask);
-    const usableHostRange = calculateUsableHostRange(networkAddress, broadcastAddress);
-    const usableHosts = calculateUsableHosts(cidrNumber);
-
-    subnetDetails = {
-        ipAddress: ip,
-        networkAddress: networkAddress,
-        usableHostRange: usableHostRange,
-        broadcastAddress: broadcastAddress,
-        usableHosts: usableHosts,
-        subnetMask: subnetMask,
-        wildcardMask: wildcardMask,
-        cidrNotation: `/${cidr}`,
-    };
-
-    renderDetails();
-}
-
-function validateIp(ip) {
-    const parts = ip.split('.');
-    return parts.length === 4 && parts.every(part => parseInt(part) >= 0 && parseInt(part) <= 255);
-}
-
-function getSubnetMask(cidr) {
-    let mask = (0xFFFFFFFF << (32 - cidr)) >>> 0;
-    return [
-        (mask >>> 24) & 0xFF,
-        (mask >>> 16) & 0xFF,
-        (mask >>> 8) & 0xFF,
-        mask & 0xFF
-    ].join('.');
-}
-
-function getWildcardMask(subnetMask) {
-    return subnetMask
-        .split('.')
-        .map(octet => 255 - parseInt(octet))
-        .join('.');
-}
-
-function calculateNetworkAddress(ip, subnetMask) {
-    const ipArray = ipToArray(ip);
-    const maskArray = ipToArray(subnetMask);
-    const networkArray = ipArray.map((octet, index) => octet & maskArray[index]);
-    return networkArray.join('.');
-}
-
-function calculateBroadcastAddress(networkAddress, subnetMask) {
-    const networkArray = ipToArray(networkAddress);
-    const maskArray = ipToArray(subnetMask).map(octet => 255 - octet);
-    const broadcastArray = networkArray.map((octet, index) => octet | maskArray[index]);
-    return broadcastArray.join('.');
-}
-
-function calculateUsableHostRange(networkAddress, broadcastAddress) {
-    const ipRangeStart = increaseIpByOne(networkAddress);
-    const ipRangeEnd = decreaseIpByOne(broadcastAddress);
-    return `${ipRangeStart} - ${ipRangeEnd}`;
-}
-
-function calculateUsableHosts(cidr) {
-    return Math.pow(2, 32 - cidr) - 2;
-}
-
-function increaseIpByOne(ip) {
-    const ipArray = ip.split('.').map(Number);
-    for (let i = ipArray.length - 1; i >= 0; i--) {
-        if (ipArray[i] < 255) {
-            ipArray[i]++;
-            break;
+    document.getElementById("calculate-btn").addEventListener("click", function() {
+        const mainSubnet = document.getElementById("main-subnet").value;
+        // Clear the previous table and data
+        document.getElementById("subnet-table-body").innerHTML = '';
+        reservedSubnets = [];
+        // Call your calculation logic
+        const details = calculateSubnetDetails(mainSubnet);
+        if (details) {
+            // Fill the details table
+            document.getElementById("ip-address").textContent = details.ip;
+            document.getElementById("network-address").textContent = details.network;
+            document.getElementById("host-range").textContent = `${details.firstHost} - ${details.lastHost}`;
+            document.getElementById("broadcast-address").textContent = details.broadcast;
+            document.getElementById("usable-hosts").textContent = details.usableHosts;
+            document.getElementById("subnet-mask").textContent = details.subnetMask;
+            document.getElementById("wildcard-mask").textContent = details.wildcardMask;
+            document.getElementById("cidr-notation").textContent = details.cidr;
         } else {
-            ipArray[i] = 0;
+            alert("Invalid main subnet");
         }
-    }
-    return ipArray.join('.');
-}
+    });
 
-function decreaseIpByOne(ip) {
-    const ipArray = ip.split('.').map(Number);
-    for (let i = ipArray.length - 1; i >= 0; i--) {
-        if (ipArray[i] > 0) {
-            ipArray[i]--;
-            break;
+    document.getElementById("slice-btn").addEventListener("click", function() {
+        const reservedSubnet = document.getElementById("reserved-subnet").value;
+        const errorMsg = document.getElementById("error-msg");
+
+        // Reset the error message
+        errorMsg.textContent = "";
+
+        if (validateSubnet(reservedSubnet)) {
+            reservedSubnets.push(reservedSubnet);
+            renderTable();
         } else {
-            ipArray[i] = 255;
+            errorMsg.textContent = "Error: Invalid input. Example: 10.228.128.0/17";
         }
+    });
+
+    function validateSubnet(subnet) {
+        // Simple regex check for valid subnet
+        const subnetPattern = /^(\d{1,3}\.){3}\d{1,3}\/\d{1,2}$/;
+        return subnetPattern.test(subnet);
     }
-    return ipArray.join('.');
-}
 
-function ipToArray(ip) {
-    return ip.split('.').map(Number);
-}
+    function renderTable() {
+        const tableBody = document.getElementById("subnet-table-body");
+        tableBody.innerHTML = "";  // Clear previous entries
 
-function renderDetails() {
-    document.getElementById('ipAddress').innerText = subnetDetails.ipAddress;
-    document.getElementById('networkAddress').innerText = subnetDetails.networkAddress;
-    document.getElementById('usableHostRange').innerText = subnetDetails.usableHostRange;
-    document.getElementById('broadcastAddress').innerText = subnetDetails.broadcastAddress;
-    document.getElementById('usableHosts').innerText = subnetDetails.usableHosts;
-    document.getElementById('subnetMask').innerText = subnetDetails.subnetMask;
-    document.getElementById('wildcardMask').innerText = subnetDetails.wildcardMask;
-    document.getElementById('cidrNotation').innerText = subnetDetails.cidrNotation;
-}
+        // Add reserved subnets in blue
+        reservedSubnets.forEach(subnet => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td class="blue-text">${subnet}</td>
+                <td>-</td>  <!-- For simplicity, add usable host range calculation later -->
+                <td>-</td>
+                <td>Reserved</td>
+                <td><button class="delete-button" onclick="removeSubnet('${subnet}')">X</button></td>
+            `;
+            tableBody.appendChild(row);
+        });
 
-function addReservedSubnet(subnet) {
-    // Implement reserved subnet logic
-}
+        // Add free subnets (placeholder for actual logic)
+        const freeSubnet = "Free Subnet Example"; // Replace with actual free subnet calculation
+        const freeRow = document.createElement("tr");
+        freeRow.innerHTML = `
+            <td class="green-text">${freeSubnet}</td>
+            <td>-</td>  <!-- For simplicity, add usable host range calculation later -->
+            <td>-</td>
+            <td>Free</td>
+            <td></td>
+        `;
+        tableBody.appendChild(freeRow);
+    }
+
+    function removeSubnet(subnet) {
+        reservedSubnets = reservedSubnets.filter(s => s !== subnet);
+        renderTable();
+    }
+
+    function calculateSubnetDetails(subnet) {
+        // Mock function - replace with your actual subnet calculation logic
+        // Example: 10.228.128.0/17
+        if (subnet === "10.228.128.0/17") {
+            return {
+                ip: "10.228.128.0",
+                network: "10.228.128.0",
+                firstHost: "10.228.128.1",
+                lastHost: "10.228.255.254",
+                broadcast: "10.228.255.255",
+                usableHosts: "32,766",
+                subnetMask: "255.255.128.0",
+                wildcardMask: "0.0.127.255",
+                cidr: "/17"
+            };
+        }
+        return null; // Invalid subnet for simplicity
+    }
+});
