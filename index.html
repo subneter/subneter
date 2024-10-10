@@ -3,49 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subnet Calculator</title>
+    <title>Subneter App</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Subnet Calculator</h1>
+        <h1>Subneter App</h1>
 
-        <!-- Enter Subnet Form -->
         <div class="form-section">
-            <label for="subnet">Enter Subnet (e.g., 10.228.128.0/17):</label>
-            <input type="text" id="subnet" placeholder="e.g. 10.228.128.0/17">
-            <button id="calculateBtn">Calculate</button>
+            <label for="main-subnet">Enter Subnet (e.g., 10.228.128.0/17):</label>
+            <input type="text" id="main-subnet" placeholder="Enter main subnet">
+            <button id="calculate-btn">Calculate</button>
         </div>
 
-        <!-- Subnet Details Table -->
         <h2>Subnet Details:</h2>
-        <table class="details-table">
-            <tr><td>IP Address:</td><td id="ipAddress"></td></tr>
-            <tr><td>Network Address:</td><td id="networkAddress"></td></tr>
-            <tr><td>Usable Host IP Range:</td><td id="usableHostRange"></td></tr>
-            <tr><td>Broadcast Address:</td><td id="broadcastAddress"></td></tr>
-            <tr><td>Number of Usable Hosts:</td><td id="usableHosts"></td></tr>
-            <tr><td>Subnet Mask:</td><td id="subnetMask"></td></tr>
-            <tr><td>Wildcard Mask:</td><td id="wildcardMask"></td></tr>
-            <tr><td>CIDR Notation:</td><td id="cidrNotation"></td></tr>
+        <table class="details-table" id="details-table">
+            <tr><td>IP Address:</td><td id="ip-address"></td></tr>
+            <tr><td>Network Address:</td><td id="network-address"></td></tr>
+            <tr><td>Usable Host IP Range:</td><td id="host-range"></td></tr>
+            <tr><td>Broadcast Address:</td><td id="broadcast-address"></td></tr>
+            <tr><td>Number of Usable Hosts:</td><td id="usable-hosts"></td></tr>
+            <tr><td>Subnet Mask:</td><td id="subnet-mask"></td></tr>
+            <tr><td>Wildcard Mask:</td><td id="wildcard-mask"></td></tr>
+            <tr><td>CIDR Notation:</td><td id="cidr-notation"></td></tr>
         </table>
 
         <hr>
 
-        <!-- Slice Subnet Form -->
         <div class="form-section">
-            <label for="reservedSubnet">Slice a Subnet (e.g., 10.228.128.0/24):</label>
-            <input type="text" id="reservedSubnet" placeholder="e.g. 10.228.128.0/24">
-            <button id="addReservedBtn">Add</button>
+            <label for="reserved-subnet">Slice a Subnet:</label>
+            <input type="text" id="reserved-subnet" placeholder="Enter reserved subnet">
+            <button id="slice-btn">Add</button>
+            <div id="error-msg" class="error"></div>
         </div>
 
-        <!-- Subnet Slicing Table -->
-        <h2>Sliced Subnets:</h2>
-        <table class="subnet-table" id="subnetTable">
+        <h2>Subnets:</h2>
+        <table class="subnet-table" id="subnet-table">
             <thead>
-                <tr><th>Subnet</th><th>Usable Host Range</th><th>Available IPs</th><th>Status</th><th>Action</th></tr>
+                <tr>
+                    <th>Subnet</th>
+                    <th>Usable Host Range</th>
+                    <th>Available IPs</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
             </thead>
-            <tbody id="tableBody"></tbody>
+            <tbody id="subnet-table-body">
+            </tbody>
         </table>
     </div>
 
